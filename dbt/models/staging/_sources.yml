@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: curated
+    description: >
+      Trips curated by the Spark job and loaded month-by-month through partition decorators.
+      Hard data-quality rules have already been applied; rejected rows are in the quarantine table.
+    database: "{{ env_var('GCP_PROJECT_ID') }}"
+    schema: curated
+    tables:
+      - name: yellow_trips
+        description: One row per trip that passed every hard rule. Partitioned by month of pickup.
+      - name: yellow_trips_quarantine
+        description: Rejected rows with every failed rule recorded. Partitioned by source file month.

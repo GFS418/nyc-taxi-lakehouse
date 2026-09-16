@@ -1,0 +1,64 @@
+version: 2
+
+models:
+  - name: stg_yellow_trips
+    description: One row per curated yellow taxi trip, with wall-clock times as DATETIME.
+    columns:
+      - name: trip_id
+        description: MD5 of every canonical source column; unique after exact-duplicate removal.
+        data_tests:
+          - not_null
+          - unique
+      - name: pickup_partition_ts
+        description: Raw partition column. Filter on this to prune partitions.
+        data_tests:
+          - not_null
+      - name: pickup_datetime
+        description: NYC local wall-clock time the meter was engaged.
+        data_tests:
+          - not_null
+      - name: dropoff_datetime
+        description: NYC local wall-clock time the meter was disengaged.
+        data_tests:
+          - not_null
+      - name: trip_duration_seconds
+        description: >
+          Dropoff minus pickup on wall-clock values. Off by one hour for the few trips that
+          cross a daylight-saving transition, because the source carries no time zone.
+      - name: passenger_count
+        description: >
+          Driver-entered passengers. NULL when not recorded (11.6% of 2024-06 trips) and never
+          filled. Divide passenger sums by trips with a recorded count, not by all trips.
+      - name: vendor_id
+        description: TPEP provider. 4 and 5 appear in 2019 but are not in the 2025 TLC dictionary.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [1, 2, 4, 5, 6, 7]
+                quote: false
+      - name: ratecode_id
+        description: Final rate code; 99 means null/unknown (TLC code, also used for source NULLs).
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [1, 2, 3, 4, 5, 6, 99]
+                quote: false
+      - name: payment_type
+        description: TLC payment code. 0 marks records submitted without meter attributes.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [0, 1, 2, 3, 4, 5, 6]
+                quote: false
+      - name: pu_location_id
+        data_tests:
+          - not_null
+      - name: do_location_id
+        data_tests:
+          - not_null
+      - name: total_amount
+        data_tests:
+          - not_null

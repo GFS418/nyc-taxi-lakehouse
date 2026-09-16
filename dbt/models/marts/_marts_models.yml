@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: mart_daily_trip_metrics
+    description: Daily trip volume, distance, and revenue, by NYC local pickup date.
+    columns:
+      - name: pickup_date
+        data_tests:
+          - not_null
+          - unique
+      - name: trips
+        data_tests:
+          - not_null
+      - name: trips_with_recorded_passengers
+        description: Trips whose passenger count was recorded, the correct denominator for passengers per trip.
+      - name: recorded_passengers
+        description: Sum of recorded passenger counts. Trips with no recorded count add nothing.
+      - name: avg_passengers_per_recorded_trip
+        description: recorded_passengers divided by trips_with_recorded_passengers, never by trips.
+      - name: card_tip_rate
+        description: Card tips divided by card fares. Cash tips are never recorded by the TLC.

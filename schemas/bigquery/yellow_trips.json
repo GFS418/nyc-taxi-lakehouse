@@ -1,0 +1,140 @@
+[
+  {
+    "name": "trip_id",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Surrogate key: MD5 hex of all canonical source columns. Unique after exact-duplicate removal."
+  },
+  {
+    "name": "vendor_id",
+    "type": "INT64",
+    "mode": "NULLABLE",
+    "description": "TPEP provider code (TLC dictionary; historical codes 4/5 retained)."
+  },
+  {
+    "name": "pickup_datetime",
+    "type": "TIMESTAMP",
+    "mode": "NULLABLE",
+    "description": "Meter engaged. NYC LOCAL WALL-CLOCK time carried in a UTC-labeled TIMESTAMP (source is timezone-naive). Recover with DATETIME(pickup_datetime, 'UTC'); never convert time zones."
+  },
+  {
+    "name": "dropoff_datetime",
+    "type": "TIMESTAMP",
+    "mode": "NULLABLE",
+    "description": "Meter disengaged. Same wall-clock convention as pickup_datetime."
+  },
+  {
+    "name": "passenger_count",
+    "type": "INT64",
+    "mode": "NULLABLE",
+    "description": "Driver-entered passenger count. NULL when the source did not record it; never filled."
+  },
+  {
+    "name": "trip_distance",
+    "type": "FLOAT64",
+    "mode": "NULLABLE",
+    "description": "Taximeter distance in miles."
+  },
+  {
+    "name": "ratecode_id",
+    "type": "INT64",
+    "mode": "NULLABLE",
+    "description": "Final rate code. Source NULLs mapped to 99 (TLC code for Null/unknown)."
+  },
+  {
+    "name": "store_and_fwd_flag",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Y/N; NULL when not recorded."
+  },
+  {
+    "name": "pu_location_id",
+    "type": "INT64",
+    "mode": "NULLABLE",
+    "description": "TLC taxi zone where the meter was engaged (1-265)."
+  },
+  {
+    "name": "do_location_id",
+    "type": "INT64",
+    "mode": "NULLABLE",
+    "description": "TLC taxi zone where the meter was disengaged (1-265)."
+  },
+  {
+    "name": "payment_type",
+    "type": "INT64",
+    "mode": "NULLABLE",
+    "description": "Payment code (TLC dictionary; 0 = Flex Fare / unrecorded-attributes records)."
+  },
+  {
+    "name": "fare_amount",
+    "type": "NUMERIC",
+    "mode": "NULLABLE",
+    "description": "Time-and-distance meter fare. USD, exact decimal (Spark DECIMAL(10,2))."
+  },
+  {
+    "name": "extra",
+    "type": "NUMERIC",
+    "mode": "NULLABLE",
+    "description": "Miscellaneous extras and surcharges. USD, exact decimal (Spark DECIMAL(10,2))."
+  },
+  {
+    "name": "mta_tax",
+    "type": "NUMERIC",
+    "mode": "NULLABLE",
+    "description": "MTA tax. USD, exact decimal (Spark DECIMAL(10,2))."
+  },
+  {
+    "name": "tip_amount",
+    "type": "NUMERIC",
+    "mode": "NULLABLE",
+    "description": "Credit-card tips; cash tips not recorded. USD, exact decimal (Spark DECIMAL(10,2))."
+  },
+  {
+    "name": "tolls_amount",
+    "type": "NUMERIC",
+    "mode": "NULLABLE",
+    "description": "Tolls. USD, exact decimal (Spark DECIMAL(10,2))."
+  },
+  {
+    "name": "improvement_surcharge",
+    "type": "NUMERIC",
+    "mode": "NULLABLE",
+    "description": "Improvement surcharge. USD, exact decimal (Spark DECIMAL(10,2))."
+  },
+  {
+    "name": "total_amount",
+    "type": "NUMERIC",
+    "mode": "NULLABLE",
+    "description": "Total charged to passenger, excluding cash tips. USD, exact decimal (Spark DECIMAL(10,2))."
+  },
+  {
+    "name": "congestion_surcharge",
+    "type": "NUMERIC",
+    "mode": "NULLABLE",
+    "description": "NYS congestion surcharge. Source NULLs set to 0. USD, exact decimal (Spark DECIMAL(10,2))."
+  },
+  {
+    "name": "airport_fee",
+    "type": "NUMERIC",
+    "mode": "NULLABLE",
+    "description": "LGA/JFK pickup fee. Source NULLs (incl. all pre-2021 files) set to 0. USD, exact decimal (Spark DECIMAL(10,2))."
+  },
+  {
+    "name": "cbd_congestion_fee",
+    "type": "NUMERIC",
+    "mode": "NULLABLE",
+    "description": "MTA Congestion Relief Zone fee (from 2025-01-05). Set to 0 where the source has no such column. USD, exact decimal (Spark DECIMAL(10,2))."
+  },
+  {
+    "name": "source_month",
+    "type": "DATE",
+    "mode": "NULLABLE",
+    "description": "First day of the TLC monthly file this row came from."
+  },
+  {
+    "name": "processed_at",
+    "type": "TIMESTAMP",
+    "mode": "NULLABLE",
+    "description": "When the Spark job that produced this row ran (true UTC)."
+  }
+]

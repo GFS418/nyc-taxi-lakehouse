@@ -1,0 +1,25 @@
+# No secrets live here. dev uses your gcloud Application Default Credentials;
+# ci reads a service-account key path from the environment.
+nyc_taxi:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: oauth
+      project: "{{ env_var('GCP_PROJECT_ID') }}"
+      dataset: analytics_dev
+      location: us-central1
+      threads: 4
+      job_execution_timeout_seconds: 600
+      # Hard per-query cost cap: BigQuery refuses any query that would bill more.
+      maximum_bytes_billed: 20000000000
+    ci:
+      type: bigquery
+      method: service-account
+      keyfile: "{{ env_var('DBT_KEYFILE', '') }}"
+      project: "{{ env_var('GCP_PROJECT_ID') }}"
+      dataset: analytics_ci
+      location: us-central1
+      threads: 4
+      job_execution_timeout_seconds: 600
+      maximum_bytes_billed: 5000000000
