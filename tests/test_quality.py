@@ -46,6 +46,9 @@ def run(spark, tmp_path, rows):
         ({"trip_distance": -0.1}, ["negative_distance"]),
         ({"trip_distance": 500.0}, []),
         ({"trip_distance": 500.1}, ["distance_over_500_miles"]),
+        ({"total_amount": 10_000.0}, []),
+        ({"total_amount": 10_000.01}, ["amount_out_of_range"]),
+        ({"fare_amount": -133_391_414.0}, ["amount_out_of_range", "negative_amount_unmatched"]),
         ({"PULocationID": 0}, ["invalid_location_id"]),
         ({"DOLocationID": 266}, ["invalid_location_id"]),
         ({"trip_distance": None}, ["missing_required_field"]),
@@ -96,4 +99,4 @@ def test_exact_duplicates_keep_one_copy(spark, tmp_path):
 
 
 def test_every_documented_rule_is_reachable():
-    assert len(RULE_CODES) == len(set(RULE_CODES)) == 11
+    assert len(RULE_CODES) == len(set(RULE_CODES)) == 12

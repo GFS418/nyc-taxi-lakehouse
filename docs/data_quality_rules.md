@@ -16,29 +16,32 @@ to run without a report, so an unreconciled month cannot reach BigQuery.
 
 ## Hard rules and what they caught
 
-Hit counts are from real pipeline runs. A row can hit more than one rule.
+Counts are the full 2019-2023 backfill: 60 months and 218,118,168 source rows, of which 2,066,185,
+or 0.95%, were quarantined. A row can fail several rules; each is counted under the rule that took
+precedence. Per-month figures are in [backfill_summary.json](backfill_summary.json).
 
-| # | Code | Rule | 2019-01 | 2024-06 |
-|---|------|------|--------:|--------:|
-| 1 | `missing_required_field` | NULL vendor, timestamps, zones, payment type, distance, fare, or total | 0 | 0 |
-| 2 | `invalid_location_id` | Pickup or dropoff zone outside TLC zone IDs 1–265 | 0 | 0 |
-| 3 | `pickup_outside_source_month` | Pickup not inside the month of the file it came from | 537 | 51 |
-| 4 | `dropoff_before_pickup` | Dropoff earlier than pickup | 4 | 8 |
-| 5 | `duration_over_24h` | Meter engaged for more than 24 hours | 5 | 20 |
-| 6 | `negative_distance` | Trip distance below zero | 0 | 0 |
-| 7 | `distance_over_500_miles` | Trip distance above 500 miles | 2 | 119 |
-| 8 | `reversal_negative_row` | Negative row that exactly negates another row of the same trip | 6,800 | 42,308 |
-| 9 | `reversed_by_negative_row` | The original charge that row 8 cancels | 6,800 | 42,308 |
-| 10 | `negative_amount_unmatched` | Any negative amount with no exact reversal partner | 338 | 19,624 |
-| 11 | `duplicate_row` | Exact copy of a row that passed every rule; one copy is kept | 0 | 0 |
+| # | Code | Rule | Rows |
+|---|------|------|-----:|
+| 1 | `missing_required_field` | NULL vendor, timestamps, zones, payment type, distance, fare, or total | 0 |
+| 2 | `invalid_location_id` | Pickup or dropoff zone outside TLC zone IDs 1-265 | 0 |
+| 3 | `pickup_outside_source_month` | Pickup not inside the month of the file it came from | 10,507 |
+| 4 | `dropoff_before_pickup` | Dropoff earlier than pickup | 74,956 |
+| 5 | `duration_over_24h` | Meter engaged for more than 24 hours | 683 |
+| 6 | `negative_distance` | Trip distance below zero | 11,440 |
+| 7 | `distance_over_500_miles` | Trip distance above 500 miles | 3,764 |
+| 8 | `amount_out_of_range` | A monetary column beyond $10,000 in absolute value | 51 |
+| 9 | `reversal_negative_row` | Negative row that exactly negates another row of the same trip | 909,527 |
+| 10 | `reversed_by_negative_row` | The original charge that row 9 cancels | 909,527 |
+| 11 | `negative_amount_unmatched` | Any negative amount with no exact reversal partner | 133,522 |
+| 12 | `duplicate_row` | Exact copy of a row that passed every rule; one copy is kept | 12,208 |
 
-| Month | Source rows | Curated | Quarantined | Rate |
-|-------|------------:|--------:|------------:|-----:|
-| 2019-01 | 7,696,617 | 7,682,131 | 14,486 | 0.19% |
-| 2024-06 | 3,539,193 | 3,434,764 | 104,429 | 2.95% |
+Refund reversals account for 88% of every quarantined row. Monthly quarantine rates run from 0.19%
+in 2019-01 to 2.30% in 2023-12, climbing over the years as reversal rows grow more common.
 
-Rules 1, 2, and 6 have never fired on real data. They stay because they cost nothing and guard
-the warehouse contract against a bad future file.
+Rules 1 and 2 have never fired on real data. They stay because they cost nothing and guard the
+warehouse contract against a bad future file. Rule 8 was added after the first backfill attempt
+crashed: 2022-12 holds an amount of -133,391,414, which no fixed-precision money type should
+silently accept.
 
 ## Why each rule is shaped the way it is
 

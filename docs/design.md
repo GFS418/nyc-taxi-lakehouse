@@ -16,7 +16,7 @@ data-quality reports on real months.
 
 | Slice | Months | Rows | Raw Parquet |
 |-------|--------|-----:|------------:|
-| Backfill | 2019-01 → 2023-12 | 218,118,168 | 3.35 GB |
+| Backfill, loaded | 2019-01 → 2023-12 | 218,118,168 | 3.35 GB |
 | Incremental demo | 2024-01 → 2024-12 | 41,169,720 | 0.69 GB |
 
 Yellow taxi only. Green taxi would add a second schema to harmonize without new engineering signal.
@@ -69,7 +69,7 @@ Canonical decisions (`src/lakehouse/schema.py`, `schemas/bigquery/*.json`):
 | `passenger_count` | INT64 | NULL stays NULL. A 0 would raise the 2024-06 zero-passenger share from 1.0% to 12.6% |
 | `ratecode_id` | INT64 | NULL → 99, the TLC dictionary's own "Null/unknown" code |
 | `congestion_surcharge`, `airport_fee`, `cbd_congestion_fee` | NUMERIC | NULL or absent → 0 |
-| all monetary columns | DECIMAL(10,2) → NUMERIC | Exact sums. Largest observed amount, 623,261.66, fits. Spark 4 ANSI casts fail loudly on overflow |
+| all monetary columns | DECIMAL(15,2) → NUMERIC | Exact sums. Wide enough for the worst source value seen, -133,391,414 in 2022-12, so the range rule can quarantine it rather than the cast crashing |
 | `trip_id` | STRING | MD5 of every canonical column **before** fills, so a filled NULL never collides with a real 0 |
 
 Unknown or missing source columns raise `SchemaContractError` and fail the month. A new column
@@ -204,7 +204,8 @@ length), about 286 bytes per curated row:
 | 2019–2023 backfill | 58.1 GiB |
 | Including 2024 | 69.1 GiB |
 
-The first real load measured 284 bytes per row, within 1% of this estimate.
+The loaded backfill measures 58.2 GiB for 219.5 million rows, 285 bytes per row, within 1% of
+this estimate.
 
 A per-row `source_file` URI was dropped from the warehouse: it would have added 16.7 GiB to repeat
 what `source_month` already encodes. It stays in the DQ report.
@@ -267,8 +268,9 @@ Verified locally:
 Verified on GCP on 2026-09-16, running 2024-06 end to end:
 
 - Ingest wrote to the bucket, and Spark read and wrote `gs://` paths with Application Default Credentials.
-- The decorator load wrote 3,434,764 curated and 104,429 quarantined rows into the `202406` partition,
-  matching the data-quality report exactly.
+- The decorator load wrote curated and quarantined rows into the `202406` partition, matching the
+  data-quality report exactly. That month now reads 3,434,763 curated and 104,430 quarantined,
+  after being reprocessed under the amount rule added during the backfill.
 - BigQuery stored the intended types: TIMESTAMP for wall-clock pickups, NUMERIC money, DATE source
   month, and REPEATED STRING reasons. Partitioning and clustering match the Terraform contract.
 - The staging DATETIME range for the month runs 2024-06-01 00:00:00 to 2024-06-30 23:59:57, so no
@@ -276,17 +278,30 @@ Verified on GCP on 2026-09-16, running 2024-06 end to end:
 - `dbt build` ran 1 view, 1 table, and 20 tests with no failures.
 - Storage measured 284 logical bytes per row against the 286 predicted in section 9.
 
+Verified on GCP on 2026-09-16, full 2019-2023 backfill:
+
+- 60 months processed in 145 minutes with no failures: 218,118,168 source rows in, 216,051,983
+  curated, 2,066,185 quarantined at 0.95%.
+- The warehouse holds 219,486,746 curated rows across 61 monthly partitions at 58.2 GiB logical,
+  plus 2,170,615 quarantined rows with their reasons.
+- `dbt build` over the full history passes 22 of 22, including the reconciliation test proving the
+  daily mart accounts for every staged trip exactly once. The mart covers 1,856 days.
+- The backfill runner is resumable: it skips any month whose report already agrees with its
+  warehouse partitions, so an interrupted run costs nothing to restart.
+
 Two integration bugs this caught, both fixed:
 
 - The 3.x Cloud Storage connector crashes on vectored Parquet reads against the Hadoop 3.4 that
   Spark 4.1 bundles. Pinned to 4.0.5.
 - BigQuery rejects a load that sets both an explicit schema and decimal target types. The explicit
   schema is kept, since it already types money as NUMERIC.
+- DECIMAL(10,2) could not represent an amount of -133,391,414 in 2022-12, and the strict cast
+  failed the month rather than nulling it. Money widened to DECIMAL(15,2), and the new
+  `amount_out_of_range` rule quarantines values like it.
 
 Still unverified:
 
 - Airflow orchestration and GitHub Actions CI, neither of which is built yet.
-- The full backfill at scale. Only single months have run.
 - Physical storage bytes, which need a project-level permission that the region storage view requires.
 - The serving dashboard.
 

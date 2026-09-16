@@ -1,0 +1,1137 @@
+{
+  "started_at": "2026-09-16T07:37:43.409192+00:00",
+  "finished_at": "2026-09-16T10:02:50.963181+00:00",
+  "elapsed_minutes": 145.1,
+  "months_requested": 60,
+  "months_processed": 60,
+  "months_skipped": 0,
+  "months_failed": 0,
+  "source_rows": 218118168,
+  "curated_rows": 216051983,
+  "quarantined_rows": 2066185,
+  "quarantine_rate": 0.009473,
+  "reject_reason_counts": {
+    "amount_out_of_range": 51,
+    "distance_over_500_miles": 3764,
+    "dropoff_before_pickup": 74956,
+    "duplicate_row": 12208,
+    "duration_over_24h": 683,
+    "negative_amount_unmatched": 133522,
+    "negative_distance": 11440,
+    "pickup_outside_source_month": 10507,
+    "reversal_negative_row": 909527,
+    "reversed_by_negative_row": 909527
+  },
+  "months": [
+    {
+      "month": "2019-01",
+      "status": "ok",
+      "source_rows": 7696617,
+      "curated_rows": 7682113,
+      "quarantined_rows": 14504,
+      "quarantine_rate": 0.001884,
+      "reject_reason_counts": {
+        "amount_out_of_range": 18,
+        "distance_over_500_miles": 2,
+        "dropoff_before_pickup": 4,
+        "duration_over_24h": 5,
+        "negative_amount_unmatched": 338,
+        "pickup_outside_source_month": 537,
+        "reversal_negative_row": 6800,
+        "reversed_by_negative_row": 6800
+      },
+      "seconds": 206.5
+    },
+    {
+      "month": "2019-02",
+      "status": "ok",
+      "source_rows": 7049370,
+      "curated_rows": 7031068,
+      "quarantined_rows": 18302,
+      "quarantine_rate": 0.002596,
+      "reject_reason_counts": {
+        "amount_out_of_range": 3,
+        "distance_over_500_miles": 1,
+        "dropoff_before_pickup": 4,
+        "duplicate_row": 45,
+        "duration_over_24h": 3,
+        "negative_amount_unmatched": 2012,
+        "pickup_outside_source_month": 626,
+        "reversal_negative_row": 7804,
+        "reversed_by_negative_row": 7804
+      },
+      "seconds": 186.1
+    },
+    {
+      "month": "2019-03",
+      "status": "ok",
+      "source_rows": 7866620,
+      "curated_rows": 7843879,
+      "quarantined_rows": 22741,
+      "quarantine_rate": 0.002891,
+      "reject_reason_counts": {
+        "amount_out_of_range": 3,
+        "dropoff_before_pickup": 11,
+        "duration_over_24h": 12,
+        "negative_amount_unmatched": 1967,
+        "pickup_outside_source_month": 510,
+        "reversal_negative_row": 10119,
+        "reversed_by_negative_row": 10119
+      },
+      "seconds": 207.8
+    },
+    {
+      "month": "2019-04",
+      "status": "ok",
+      "source_rows": 7475949,
+      "curated_rows": 7452418,
+      "quarantined_rows": 23531,
+      "quarantine_rate": 0.003148,
+      "reject_reason_counts": {
+        "amount_out_of_range": 1,
+        "distance_over_500_miles": 1,
+        "dropoff_before_pickup": 9,
+        "duration_over_24h": 3,
+        "negative_amount_unmatched": 780,
+        "pickup_outside_source_month": 313,
+        "reversal_negative_row": 11212,
+        "reversed_by_negative_row": 11212
+      },
+      "seconds": 199.8
+    },
+    {
+      "month": "2019-05",
+      "status": "ok",
+      "source_rows": 7598445,
+      "curated_rows": 7571366,
+      "quarantined_rows": 27079,
+      "quarantine_rate": 0.003564,
+      "reject_reason_counts": {
+        "dropoff_before_pickup": 10,
+        "duplicate_row": 1,
+        "duration_over_24h": 13,
+        "negative_amount_unmatched": 770,
+        "pickup_outside_source_month": 377,
+        "reversal_negative_row": 12954,
+        "reversed_by_negative_row": 12954
+      },
+      "seconds": 203.6
+    },
+    {
+      "month": "2019-06",
+      "status": "ok",
+      "source_rows": 6971560,
+      "curated_rows": 6943753,
+      "quarantined_rows": 27807,
+      "quarantine_rate": 0.003989,
+      "reject_reason_counts": {
+        "amount_out_of_range": 2,
+        "distance_over_500_miles": 1,
+        "dropoff_before_pickup": 16,
+        "duplicate_row": 1,
+        "duration_over_24h": 3,
+        "negative_amount_unmatched": 826,
+        "pickup_outside_source_month": 534,
+        "reversal_negative_row": 13212,
+        "reversed_by_negative_row": 13212
+      },
+      "seconds": 189.7
+    },
+    {
+      "month": "2019-07",
+      "status": "ok",
+      "source_rows": 6310419,
+      "curated_rows": 6284387,
+      "quarantined_rows": 26032,
+      "quarantine_rate": 0.004125,
+      "reject_reason_counts": {
+        "dropoff_before_pickup": 10,
+        "duplicate_row": 1,
+        "duration_over_24h": 6,
+        "negative_amount_unmatched": 854,
+        "pickup_outside_source_month": 285,
+        "reversal_negative_row": 12438,
+        "reversed_by_negative_row": 12438
+      },
+      "seconds": 175.4
+    },
+    {
+      "month": "2019-08",
+      "status": "ok",
+      "source_rows": 6073357,
+      "curated_rows": 6044341,
+      "quarantined_rows": 29016,
+      "quarantine_rate": 0.004778,
+      "reject_reason_counts": {
+        "amount_out_of_range": 1,
+        "distance_over_500_miles": 1,
+        "dropoff_before_pickup": 7,
+        "duration_over_24h": 19,
+        "negative_amount_unmatched": 1132,
+        "pickup_outside_source_month": 506,
+        "reversal_negative_row": 13675,
+        "reversed_by_negative_row": 13675
+      },
+      "seconds": 173.4
+    },
+    {
+      "month": "2019-09",
+      "status": "ok",
+      "source_rows": 6567788,
+      "curated_rows": 6537104,
+      "quarantined_rows": 30684,
+      "quarantine_rate": 0.004672,
+      "reject_reason_counts": {
+        "amount_out_of_range": 2,
+        "distance_over_500_miles": 1,
+        "dropoff_before_pickup": 9,
+        "duration_over_24h": 10,
+        "negative_amount_unmatched": 1260,
+        "pickup_outside_source_month": 392,
+        "reversal_negative_row": 14505,
+        "reversed_by_negative_row": 14505
+      },
+      "seconds": 185.2
+    },
+    {
+      "month": "2019-10",
+      "status": "ok",
+      "source_rows": 7213891,
+      "curated_rows": 7178750,
+      "quarantined_rows": 35141,
+      "quarantine_rate": 0.004871,
+      "reject_reason_counts": {
+        "dropoff_before_pickup": 8,
+        "duplicate_row": 1,
+        "duration_over_24h": 5,
+        "negative_amount_unmatched": 1466,
+        "pickup_outside_source_month": 303,
+        "reversal_negative_row": 16679,
+        "reversed_by_negative_row": 16679
+      },
+      "seconds": 200.7
+    },
+    {
+      "month": "2019-11",
+      "status": "ok",
+      "source_rows": 6878111,
+      "curated_rows": 6834655,
+      "quarantined_rows": 43456,
+      "quarantine_rate": 0.006318,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 2,
+        "dropoff_before_pickup": 979,
+        "duplicate_row": 1,
+        "duration_over_24h": 11,
+        "negative_amount_unmatched": 1972,
+        "negative_distance": 5807,
+        "pickup_outside_source_month": 648,
+        "reversal_negative_row": 17018,
+        "reversed_by_negative_row": 17018
+      },
+      "seconds": 207.0
+    },
+    {
+      "month": "2019-12",
+      "status": "ok",
+      "source_rows": 6896317,
+      "curated_rows": 6852910,
+      "quarantined_rows": 43407,
+      "quarantine_rate": 0.006294,
+      "reject_reason_counts": {
+        "amount_out_of_range": 1,
+        "distance_over_500_miles": 1,
+        "dropoff_before_pickup": 4,
+        "duration_over_24h": 16,
+        "negative_amount_unmatched": 1948,
+        "negative_distance": 3295,
+        "pickup_outside_source_month": 384,
+        "reversal_negative_row": 18879,
+        "reversed_by_negative_row": 18879
+      },
+      "seconds": 198.4
+    },
+    {
+      "month": "2020-01",
+      "status": "ok",
+      "source_rows": 6405008,
+      "curated_rows": 6353279,
+      "quarantined_rows": 51729,
+      "quarantine_rate": 0.008076,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 1,
+        "dropoff_before_pickup": 7,
+        "duplicate_row": 12154,
+        "duration_over_24h": 15,
+        "negative_amount_unmatched": 2006,
+        "negative_distance": 2338,
+        "pickup_outside_source_month": 212,
+        "reversal_negative_row": 17498,
+        "reversed_by_negative_row": 17498
+      },
+      "seconds": 182.8
+    },
+    {
+      "month": "2020-02",
+      "status": "ok",
+      "source_rows": 6299367,
+      "curated_rows": 6261158,
+      "quarantined_rows": 38209,
+      "quarantine_rate": 0.006066,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 5,
+        "dropoff_before_pickup": 33,
+        "duration_over_24h": 5,
+        "negative_amount_unmatched": 2155,
+        "pickup_outside_source_month": 303,
+        "reversal_negative_row": 17854,
+        "reversed_by_negative_row": 17854
+      },
+      "seconds": 187.2
+    },
+    {
+      "month": "2020-03",
+      "status": "ok",
+      "source_rows": 3007687,
+      "curated_rows": 2986245,
+      "quarantined_rows": 21442,
+      "quarantine_rate": 0.007129,
+      "reject_reason_counts": {
+        "amount_out_of_range": 2,
+        "distance_over_500_miles": 8,
+        "dropoff_before_pickup": 152,
+        "duration_over_24h": 2,
+        "negative_amount_unmatched": 1218,
+        "pickup_outside_source_month": 426,
+        "reversal_negative_row": 9817,
+        "reversed_by_negative_row": 9817
+      },
+      "seconds": 130.9
+    },
+    {
+      "month": "2020-04",
+      "status": "ok",
+      "source_rows": 238073,
+      "curated_rows": 235479,
+      "quarantined_rows": 2594,
+      "quarantine_rate": 0.010896,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 4,
+        "dropoff_before_pickup": 29,
+        "duration_over_24h": 3,
+        "negative_amount_unmatched": 164,
+        "pickup_outside_source_month": 132,
+        "reversal_negative_row": 1131,
+        "reversed_by_negative_row": 1131
+      },
+      "seconds": 60.0
+    },
+    {
+      "month": "2020-05",
+      "status": "ok",
+      "source_rows": 348415,
+      "curated_rows": 345503,
+      "quarantined_rows": 2912,
+      "quarantine_rate": 0.008358,
+      "reject_reason_counts": {
+        "amount_out_of_range": 1,
+        "distance_over_500_miles": 21,
+        "dropoff_before_pickup": 7,
+        "negative_amount_unmatched": 188,
+        "pickup_outside_source_month": 23,
+        "reversal_negative_row": 1336,
+        "reversed_by_negative_row": 1336
+      },
+      "seconds": 60.0
+    },
+    {
+      "month": "2020-06",
+      "status": "ok",
+      "source_rows": 549797,
+      "curated_rows": 545027,
+      "quarantined_rows": 4770,
+      "quarantine_rate": 0.008676,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 5,
+        "dropoff_before_pickup": 2,
+        "duplicate_row": 1,
+        "duration_over_24h": 4,
+        "negative_amount_unmatched": 339,
+        "pickup_outside_source_month": 9,
+        "reversal_negative_row": 2205,
+        "reversed_by_negative_row": 2205
+      },
+      "seconds": 61.7
+    },
+    {
+      "month": "2020-07",
+      "status": "ok",
+      "source_rows": 800412,
+      "curated_rows": 793407,
+      "quarantined_rows": 7005,
+      "quarantine_rate": 0.008752,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 9,
+        "dropoff_before_pickup": 6,
+        "duration_over_24h": 6,
+        "negative_amount_unmatched": 450,
+        "pickup_outside_source_month": 10,
+        "reversal_negative_row": 3262,
+        "reversed_by_negative_row": 3262
+      },
+      "seconds": 90.9
+    },
+    {
+      "month": "2020-08",
+      "status": "ok",
+      "source_rows": 1007286,
+      "curated_rows": 997962,
+      "quarantined_rows": 9324,
+      "quarantine_rate": 0.009257,
+      "reject_reason_counts": {
+        "amount_out_of_range": 1,
+        "distance_over_500_miles": 20,
+        "dropoff_before_pickup": 28,
+        "duration_over_24h": 9,
+        "negative_amount_unmatched": 576,
+        "pickup_outside_source_month": 16,
+        "reversal_negative_row": 4337,
+        "reversed_by_negative_row": 4337
+      },
+      "seconds": 99.4
+    },
+    {
+      "month": "2020-09",
+      "status": "ok",
+      "source_rows": 1341017,
+      "curated_rows": 1326101,
+      "quarantined_rows": 14916,
+      "quarantine_rate": 0.011123,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 25,
+        "dropoff_before_pickup": 3509,
+        "duration_over_24h": 4,
+        "negative_amount_unmatched": 708,
+        "pickup_outside_source_month": 134,
+        "reversal_negative_row": 5268,
+        "reversed_by_negative_row": 5268
+      },
+      "seconds": 85.6
+    },
+    {
+      "month": "2020-10",
+      "status": "ok",
+      "source_rows": 1681132,
+      "curated_rows": 1661818,
+      "quarantined_rows": 19314,
+      "quarantine_rate": 0.011489,
+      "reject_reason_counts": {
+        "amount_out_of_range": 1,
+        "distance_over_500_miles": 20,
+        "dropoff_before_pickup": 5393,
+        "duration_over_24h": 1,
+        "negative_amount_unmatched": 851,
+        "pickup_outside_source_month": 32,
+        "reversal_negative_row": 6508,
+        "reversed_by_negative_row": 6508
+      },
+      "seconds": 95.8
+    },
+    {
+      "month": "2020-11",
+      "status": "ok",
+      "source_rows": 1509000,
+      "curated_rows": 1489973,
+      "quarantined_rows": 19027,
+      "quarantine_rate": 0.012609,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 31,
+        "dropoff_before_pickup": 5312,
+        "duration_over_24h": 4,
+        "negative_amount_unmatched": 898,
+        "pickup_outside_source_month": 112,
+        "reversal_negative_row": 6335,
+        "reversed_by_negative_row": 6335
+      },
+      "seconds": 99.0
+    },
+    {
+      "month": "2020-12",
+      "status": "ok",
+      "source_rows": 1461898,
+      "curated_rows": 1441796,
+      "quarantined_rows": 20102,
+      "quarantine_rate": 0.013751,
+      "reject_reason_counts": {
+        "amount_out_of_range": 1,
+        "distance_over_500_miles": 43,
+        "dropoff_before_pickup": 5533,
+        "duration_over_24h": 2,
+        "negative_amount_unmatched": 974,
+        "pickup_outside_source_month": 35,
+        "reversal_negative_row": 6757,
+        "reversed_by_negative_row": 6757
+      },
+      "seconds": 93.7
+    },
+    {
+      "month": "2021-01",
+      "status": "ok",
+      "source_rows": 1369769,
+      "curated_rows": 1351453,
+      "quarantined_rows": 18316,
+      "quarantine_rate": 0.013372,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 39,
+        "dropoff_before_pickup": 5642,
+        "duration_over_24h": 5,
+        "negative_amount_unmatched": 940,
+        "pickup_outside_source_month": 24,
+        "reversal_negative_row": 5833,
+        "reversed_by_negative_row": 5833
+      },
+      "seconds": 108.9
+    },
+    {
+      "month": "2021-02",
+      "status": "ok",
+      "source_rows": 1371709,
+      "curated_rows": 1352636,
+      "quarantined_rows": 19073,
+      "quarantine_rate": 0.013905,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 27,
+        "dropoff_before_pickup": 6358,
+        "duration_over_24h": 1,
+        "negative_amount_unmatched": 952,
+        "pickup_outside_source_month": 31,
+        "reversal_negative_row": 5852,
+        "reversed_by_negative_row": 5852
+      },
+      "seconds": 105.3
+    },
+    {
+      "month": "2021-03",
+      "status": "ok",
+      "source_rows": 1925152,
+      "curated_rows": 1901505,
+      "quarantined_rows": 23647,
+      "quarantine_rate": 0.012283,
+      "reject_reason_counts": {
+        "amount_out_of_range": 1,
+        "distance_over_500_miles": 52,
+        "dropoff_before_pickup": 6430,
+        "duration_over_24h": 4,
+        "negative_amount_unmatched": 1203,
+        "pickup_outside_source_month": 33,
+        "reversal_negative_row": 7962,
+        "reversed_by_negative_row": 7962
+      },
+      "seconds": 120.5
+    },
+    {
+      "month": "2021-04",
+      "status": "ok",
+      "source_rows": 2171187,
+      "curated_rows": 2149557,
+      "quarantined_rows": 21630,
+      "quarantine_rate": 0.009962,
+      "reject_reason_counts": {
+        "amount_out_of_range": 1,
+        "distance_over_500_miles": 126,
+        "dropoff_before_pickup": 2965,
+        "duration_over_24h": 9,
+        "negative_amount_unmatched": 1243,
+        "pickup_outside_source_month": 42,
+        "reversal_negative_row": 8622,
+        "reversed_by_negative_row": 8622
+      },
+      "seconds": 116.5
+    },
+    {
+      "month": "2021-05",
+      "status": "ok",
+      "source_rows": 2507109,
+      "curated_rows": 2483320,
+      "quarantined_rows": 23789,
+      "quarantine_rate": 0.009489,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 172,
+        "dropoff_before_pickup": 2810,
+        "duration_over_24h": 8,
+        "negative_amount_unmatched": 1347,
+        "pickup_outside_source_month": 94,
+        "reversal_negative_row": 9679,
+        "reversed_by_negative_row": 9679
+      },
+      "seconds": 132.2
+    },
+    {
+      "month": "2021-06",
+      "status": "ok",
+      "source_rows": 2834264,
+      "curated_rows": 2808310,
+      "quarantined_rows": 25954,
+      "quarantine_rate": 0.009157,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 169,
+        "dropoff_before_pickup": 2117,
+        "duration_over_24h": 8,
+        "negative_amount_unmatched": 1603,
+        "pickup_outside_source_month": 123,
+        "reversal_negative_row": 10967,
+        "reversed_by_negative_row": 10967
+      },
+      "seconds": 125.9
+    },
+    {
+      "month": "2021-07",
+      "status": "ok",
+      "source_rows": 2821746,
+      "curated_rows": 2794648,
+      "quarantined_rows": 27098,
+      "quarantine_rate": 0.009603,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 164,
+        "dropoff_before_pickup": 2017,
+        "duration_over_24h": 7,
+        "negative_amount_unmatched": 1764,
+        "pickup_outside_source_month": 130,
+        "reversal_negative_row": 11508,
+        "reversed_by_negative_row": 11508
+      },
+      "seconds": 141.1
+    },
+    {
+      "month": "2021-08",
+      "status": "ok",
+      "source_rows": 2788757,
+      "curated_rows": 2761288,
+      "quarantined_rows": 27469,
+      "quarantine_rate": 0.00985,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 166,
+        "dropoff_before_pickup": 2566,
+        "duration_over_24h": 15,
+        "negative_amount_unmatched": 1608,
+        "pickup_outside_source_month": 526,
+        "reversal_negative_row": 11294,
+        "reversed_by_negative_row": 11294
+      },
+      "seconds": 132.6
+    },
+    {
+      "month": "2021-09",
+      "status": "ok",
+      "source_rows": 2963793,
+      "curated_rows": 2937852,
+      "quarantined_rows": 25941,
+      "quarantine_rate": 0.008753,
+      "reject_reason_counts": {
+        "amount_out_of_range": 1,
+        "distance_over_500_miles": 121,
+        "dropoff_before_pickup": 2446,
+        "duration_over_24h": 11,
+        "negative_amount_unmatched": 1539,
+        "pickup_outside_source_month": 105,
+        "reversal_negative_row": 10859,
+        "reversed_by_negative_row": 10859
+      },
+      "seconds": 126.7
+    },
+    {
+      "month": "2021-10",
+      "status": "ok",
+      "source_rows": 3463504,
+      "curated_rows": 3434824,
+      "quarantined_rows": 28680,
+      "quarantine_rate": 0.008281,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 161,
+        "dropoff_before_pickup": 1710,
+        "duration_over_24h": 15,
+        "negative_amount_unmatched": 1793,
+        "pickup_outside_source_month": 111,
+        "reversal_negative_row": 12445,
+        "reversed_by_negative_row": 12445
+      },
+      "seconds": 152.0
+    },
+    {
+      "month": "2021-11",
+      "status": "ok",
+      "source_rows": 3472949,
+      "curated_rows": 3442797,
+      "quarantined_rows": 30152,
+      "quarantine_rate": 0.008682,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 168,
+        "dropoff_before_pickup": 1551,
+        "duration_over_24h": 11,
+        "negative_amount_unmatched": 1985,
+        "pickup_outside_source_month": 127,
+        "reversal_negative_row": 13155,
+        "reversed_by_negative_row": 13155
+      },
+      "seconds": 161.5
+    },
+    {
+      "month": "2021-12",
+      "status": "ok",
+      "source_rows": 3214369,
+      "curated_rows": 3182572,
+      "quarantined_rows": 31797,
+      "quarantine_rate": 0.009892,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 149,
+        "dropoff_before_pickup": 1174,
+        "duration_over_24h": 9,
+        "negative_amount_unmatched": 2083,
+        "pickup_outside_source_month": 108,
+        "reversal_negative_row": 14137,
+        "reversed_by_negative_row": 14137
+      },
+      "seconds": 162.8
+    },
+    {
+      "month": "2022-01",
+      "status": "ok",
+      "source_rows": 2463931,
+      "curated_rows": 2438398,
+      "quarantined_rows": 25533,
+      "quarantine_rate": 0.010363,
+      "reject_reason_counts": {
+        "amount_out_of_range": 1,
+        "distance_over_500_miles": 75,
+        "dropoff_before_pickup": 1353,
+        "duration_over_24h": 14,
+        "negative_amount_unmatched": 1838,
+        "pickup_outside_source_month": 52,
+        "reversal_negative_row": 11100,
+        "reversed_by_negative_row": 11100
+      },
+      "seconds": 145.0
+    },
+    {
+      "month": "2022-02",
+      "status": "ok",
+      "source_rows": 2979431,
+      "curated_rows": 2948553,
+      "quarantined_rows": 30878,
+      "quarantine_rate": 0.010364,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 85,
+        "dropoff_before_pickup": 1549,
+        "duration_over_24h": 15,
+        "negative_amount_unmatched": 2099,
+        "pickup_outside_source_month": 64,
+        "reversal_negative_row": 13533,
+        "reversed_by_negative_row": 13533
+      },
+      "seconds": 133.8
+    },
+    {
+      "month": "2022-03",
+      "status": "ok",
+      "source_rows": 3627882,
+      "curated_rows": 3588721,
+      "quarantined_rows": 39161,
+      "quarantine_rate": 0.010794,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 94,
+        "dropoff_before_pickup": 1783,
+        "duration_over_24h": 10,
+        "negative_amount_unmatched": 2871,
+        "pickup_outside_source_month": 89,
+        "reversal_negative_row": 17157,
+        "reversed_by_negative_row": 17157
+      },
+      "seconds": 165.4
+    },
+    {
+      "month": "2022-04",
+      "status": "ok",
+      "source_rows": 3599920,
+      "curated_rows": 3561657,
+      "quarantined_rows": 38263,
+      "quarantine_rate": 0.010629,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 89,
+        "dropoff_before_pickup": 1661,
+        "duration_over_24h": 16,
+        "negative_amount_unmatched": 2581,
+        "pickup_outside_source_month": 158,
+        "reversal_negative_row": 16879,
+        "reversed_by_negative_row": 16879
+      },
+      "seconds": 156.4
+    },
+    {
+      "month": "2022-05",
+      "status": "ok",
+      "source_rows": 3588295,
+      "curated_rows": 3547977,
+      "quarantined_rows": 40318,
+      "quarantine_rate": 0.011236,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 120,
+        "dropoff_before_pickup": 1268,
+        "duration_over_24h": 19,
+        "negative_amount_unmatched": 2648,
+        "pickup_outside_source_month": 143,
+        "reversal_negative_row": 18060,
+        "reversed_by_negative_row": 18060
+      },
+      "seconds": 166.1
+    },
+    {
+      "month": "2022-06",
+      "status": "ok",
+      "source_rows": 3558124,
+      "curated_rows": 3513716,
+      "quarantined_rows": 44408,
+      "quarantine_rate": 0.012481,
+      "reject_reason_counts": {
+        "amount_out_of_range": 1,
+        "distance_over_500_miles": 91,
+        "dropoff_before_pickup": 1221,
+        "duration_over_24h": 19,
+        "negative_amount_unmatched": 2836,
+        "pickup_outside_source_month": 512,
+        "reversal_negative_row": 19864,
+        "reversed_by_negative_row": 19864
+      },
+      "seconds": 145.8
+    },
+    {
+      "month": "2022-07",
+      "status": "ok",
+      "source_rows": 3174394,
+      "curated_rows": 3132799,
+      "quarantined_rows": 41595,
+      "quarantine_rate": 0.013103,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 74,
+        "dropoff_before_pickup": 1261,
+        "duration_over_24h": 20,
+        "negative_amount_unmatched": 2960,
+        "pickup_outside_source_month": 82,
+        "reversal_negative_row": 18599,
+        "reversed_by_negative_row": 18599
+      },
+      "seconds": 140.5
+    },
+    {
+      "month": "2022-08",
+      "status": "ok",
+      "source_rows": 3152677,
+      "curated_rows": 3109601,
+      "quarantined_rows": 43076,
+      "quarantine_rate": 0.013663,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 71,
+        "dropoff_before_pickup": 857,
+        "duration_over_24h": 20,
+        "negative_amount_unmatched": 3191,
+        "pickup_outside_source_month": 53,
+        "reversal_negative_row": 19442,
+        "reversed_by_negative_row": 19442
+      },
+      "seconds": 141.1
+    },
+    {
+      "month": "2022-09",
+      "status": "ok",
+      "source_rows": 3183767,
+      "curated_rows": 3143311,
+      "quarantined_rows": 40456,
+      "quarantine_rate": 0.012707,
+      "reject_reason_counts": {
+        "amount_out_of_range": 2,
+        "distance_over_500_miles": 108,
+        "dropoff_before_pickup": 2,
+        "duration_over_24h": 15,
+        "negative_amount_unmatched": 2838,
+        "pickup_outside_source_month": 77,
+        "reversal_negative_row": 18707,
+        "reversed_by_negative_row": 18707
+      },
+      "seconds": 151.8
+    },
+    {
+      "month": "2022-10",
+      "status": "ok",
+      "source_rows": 3675411,
+      "curated_rows": 3625502,
+      "quarantined_rows": 49909,
+      "quarantine_rate": 0.013579,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 102,
+        "dropoff_before_pickup": 993,
+        "duplicate_row": 1,
+        "duration_over_24h": 20,
+        "negative_amount_unmatched": 3808,
+        "pickup_outside_source_month": 91,
+        "reversal_negative_row": 22447,
+        "reversed_by_negative_row": 22447
+      },
+      "seconds": 154.1
+    },
+    {
+      "month": "2022-11",
+      "status": "ok",
+      "source_rows": 3252717,
+      "curated_rows": 3204847,
+      "quarantined_rows": 47870,
+      "quarantine_rate": 0.014717,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 102,
+        "dropoff_before_pickup": 1561,
+        "duration_over_24h": 22,
+        "negative_amount_unmatched": 3614,
+        "pickup_outside_source_month": 97,
+        "reversal_negative_row": 21237,
+        "reversed_by_negative_row": 21237
+      },
+      "seconds": 149.0
+    },
+    {
+      "month": "2022-12",
+      "status": "ok",
+      "source_rows": 3399549,
+      "curated_rows": 3348287,
+      "quarantined_rows": 51262,
+      "quarantine_rate": 0.015079,
+      "reject_reason_counts": {
+        "amount_out_of_range": 2,
+        "distance_over_500_miles": 110,
+        "dropoff_before_pickup": 104,
+        "duration_over_24h": 17,
+        "negative_amount_unmatched": 3865,
+        "pickup_outside_source_month": 46,
+        "reversal_negative_row": 23559,
+        "reversed_by_negative_row": 23559
+      },
+      "seconds": 148.1
+    },
+    {
+      "month": "2023-01",
+      "status": "ok",
+      "source_rows": 3066766,
+      "curated_rows": 3019820,
+      "quarantined_rows": 46946,
+      "quarantine_rate": 0.015308,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 69,
+        "dropoff_before_pickup": 3,
+        "duration_over_24h": 25,
+        "negative_amount_unmatched": 3625,
+        "pickup_outside_source_month": 48,
+        "reversal_negative_row": 21588,
+        "reversed_by_negative_row": 21588
+      },
+      "seconds": 131.9
+    },
+    {
+      "month": "2023-02",
+      "status": "ok",
+      "source_rows": 2913955,
+      "curated_rows": 2867138,
+      "quarantined_rows": 46817,
+      "quarantine_rate": 0.016066,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 76,
+        "dropoff_before_pickup": 276,
+        "duration_over_24h": 22,
+        "negative_amount_unmatched": 3430,
+        "pickup_outside_source_month": 55,
+        "reversal_negative_row": 21479,
+        "reversed_by_negative_row": 21479
+      },
+      "seconds": 133.5
+    },
+    {
+      "month": "2023-03",
+      "status": "ok",
+      "source_rows": 3403766,
+      "curated_rows": 3347365,
+      "quarantined_rows": 56401,
+      "quarantine_rate": 0.01657,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 96,
+        "dropoff_before_pickup": 357,
+        "duration_over_24h": 21,
+        "negative_amount_unmatched": 3934,
+        "pickup_outside_source_month": 189,
+        "reversal_negative_row": 25902,
+        "reversed_by_negative_row": 25902
+      },
+      "seconds": 144.3
+    },
+    {
+      "month": "2023-04",
+      "status": "ok",
+      "source_rows": 3288250,
+      "curated_rows": 3231673,
+      "quarantined_rows": 56577,
+      "quarantine_rate": 0.017206,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 84,
+        "dropoff_before_pickup": 91,
+        "duration_over_24h": 19,
+        "negative_amount_unmatched": 3996,
+        "pickup_outside_source_month": 95,
+        "reversal_negative_row": 26146,
+        "reversed_by_negative_row": 26146
+      },
+      "seconds": 155.1
+    },
+    {
+      "month": "2023-05",
+      "status": "ok",
+      "source_rows": 3513649,
+      "curated_rows": 3453024,
+      "quarantined_rows": 60625,
+      "quarantine_rate": 0.017254,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 102,
+        "dropoff_before_pickup": 68,
+        "duration_over_24h": 7,
+        "negative_amount_unmatched": 4176,
+        "pickup_outside_source_month": 50,
+        "reversal_negative_row": 28111,
+        "reversed_by_negative_row": 28111
+      },
+      "seconds": 154.2
+    },
+    {
+      "month": "2023-06",
+      "status": "ok",
+      "source_rows": 3307234,
+      "curated_rows": 3247959,
+      "quarantined_rows": 59275,
+      "quarantine_rate": 0.017923,
+      "reject_reason_counts": {
+        "amount_out_of_range": 1,
+        "distance_over_500_miles": 105,
+        "dropoff_before_pickup": 189,
+        "duration_over_24h": 15,
+        "negative_amount_unmatched": 4260,
+        "pickup_outside_source_month": 41,
+        "reversal_negative_row": 27332,
+        "reversed_by_negative_row": 27332
+      },
+      "seconds": 157.5
+    },
+    {
+      "month": "2023-07",
+      "status": "ok",
+      "source_rows": 2907108,
+      "curated_rows": 2848507,
+      "quarantined_rows": 58601,
+      "quarantine_rate": 0.020158,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 93,
+        "dropoff_before_pickup": 162,
+        "duration_over_24h": 13,
+        "negative_amount_unmatched": 4298,
+        "pickup_outside_source_month": 59,
+        "reversal_negative_row": 26988,
+        "reversed_by_negative_row": 26988
+      },
+      "seconds": 148.7
+    },
+    {
+      "month": "2023-08",
+      "status": "ok",
+      "source_rows": 2824209,
+      "curated_rows": 2765587,
+      "quarantined_rows": 58622,
+      "quarantine_rate": 0.020757,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 85,
+        "dropoff_before_pickup": 146,
+        "duration_over_24h": 23,
+        "negative_amount_unmatched": 4516,
+        "pickup_outside_source_month": 34,
+        "reversal_negative_row": 26909,
+        "reversed_by_negative_row": 26909
+      },
+      "seconds": 123.5
+    },
+    {
+      "month": "2023-09",
+      "status": "ok",
+      "source_rows": 2846722,
+      "curated_rows": 2791064,
+      "quarantined_rows": 55658,
+      "quarantine_rate": 0.019552,
+      "reject_reason_counts": {
+        "amount_out_of_range": 4,
+        "distance_over_500_miles": 86,
+        "dropoff_before_pickup": 146,
+        "duration_over_24h": 16,
+        "negative_amount_unmatched": 4028,
+        "pickup_outside_source_month": 32,
+        "reversal_negative_row": 25673,
+        "reversed_by_negative_row": 25673
+      },
+      "seconds": 142.2
+    },
+    {
+      "month": "2023-10",
+      "status": "ok",
+      "source_rows": 3522285,
+      "curated_rows": 3452546,
+      "quarantined_rows": 69739,
+      "quarantine_rate": 0.019799,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 61,
+        "dropoff_before_pickup": 85,
+        "duration_over_24h": 19,
+        "negative_amount_unmatched": 5031,
+        "pickup_outside_source_month": 53,
+        "reversal_negative_row": 32245,
+        "reversed_by_negative_row": 32245
+      },
+      "seconds": 160.3
+    },
+    {
+      "month": "2023-11",
+      "status": "ok",
+      "source_rows": 3339715,
+      "curated_rows": 3269772,
+      "quarantined_rows": 69943,
+      "quarantine_rate": 0.020943,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 35,
+        "dropoff_before_pickup": 885,
+        "duplicate_row": 2,
+        "duration_over_24h": 14,
+        "negative_amount_unmatched": 5082,
+        "pickup_outside_source_month": 31,
+        "reversal_negative_row": 31947,
+        "reversed_by_negative_row": 31947
+      },
+      "seconds": 151.1
+    },
+    {
+      "month": "2023-12",
+      "status": "ok",
+      "source_rows": 3376567,
+      "curated_rows": 3298905,
+      "quarantined_rows": 77662,
+      "quarantine_rate": 0.023,
+      "reject_reason_counts": {
+        "distance_over_500_miles": 35,
+        "dropoff_before_pickup": 67,
+        "duration_over_24h": 18,
+        "negative_amount_unmatched": 8085,
+        "pickup_outside_source_month": 43,
+        "reversal_negative_row": 34707,
+        "reversed_by_negative_row": 34707
+      },
+      "seconds": 141.3
+    }
+  ]
+}

@@ -57,6 +57,12 @@ def test_fills_follow_the_decisions(spark, tmp_path):
     assert out.cbd_congestion_fee == Decimal("0.00")  # column absent before 2025
 
 
+def test_large_amount_survives_the_cast_so_it_can_be_quarantined(spark, tmp_path):
+    rows = [trip(fare_amount=-133_391_414.0)]
+    out = canonical(spark, tmp_path, table_2019_era(rows)).collect()[0]
+    assert out.fare_amount == Decimal("-133391414.00")
+
+
 def test_money_is_exact_decimal(spark, tmp_path):
     out = canonical(spark, tmp_path, table_2019_era([trip(fare_amount=0.1 + 0.2)])).collect()[0]
     assert out.fare_amount == Decimal("0.30")

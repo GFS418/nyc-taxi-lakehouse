@@ -14,7 +14,9 @@ from pyspark.sql import Column, DataFrame
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
 
-MONEY = T.DecimalType(10, 2)
+# 15 digits, not 10: 2022-12 contains an amount of -133,391,414. The amount_out_of_range
+# rule quarantines values like that, but the type has to represent them first.
+MONEY = T.DecimalType(15, 2)
 
 # lowercase source column -> (canonical column, canonical type). Order is the output order.
 SOURCE_COLUMNS: dict[str, tuple[str, T.DataType]] = {

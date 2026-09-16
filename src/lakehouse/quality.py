@@ -19,6 +19,7 @@ from lakehouse.config import Month
 from lakehouse.schema import MONEY_COLUMNS, QUARANTINE_COLUMNS
 
 MAX_DISTANCE_MILES = 500
+MAX_ABS_AMOUNT = 10_000
 LOCATION_ID_RANGE = (1, 265)
 REQUIRED_NON_NULL = (
     "vendor_id",
@@ -57,6 +58,10 @@ RULES = (
     Rule("duration_over_24h", "Meter engaged for more than 24 hours."),
     Rule("negative_distance", "Negative trip distance."),
     Rule("distance_over_500_miles", f"Trip distance above {MAX_DISTANCE_MILES} miles."),
+    Rule(
+        "amount_out_of_range",
+        f"A monetary column beyond ${MAX_ABS_AMOUNT:,} in absolute value; no real trip costs that.",
+    ),
     Rule(
         "reversal_negative_row",
         "Negative-amount row that exactly negates another row of the same trip (a void or refund).",
@@ -117,6 +122,7 @@ def _rule_conditions(month: Month) -> dict[str, Column]:
         "duration_over_24h": (dropoff - pickup) > F.expr("INTERVAL '24' HOUR"),
         "negative_distance": F.col("trip_distance") < 0,
         "distance_over_500_miles": F.col("trip_distance") > MAX_DISTANCE_MILES,
+        "amount_out_of_range": _any([F.abs(F.col(c)) > MAX_ABS_AMOUNT for c in MONEY_COLUMNS]),
         "reversal_negative_row": F.col("_is_negative") & F.col("_paired"),
         "reversed_by_negative_row": ~F.col("_is_negative") & F.col("_paired"),
         "negative_amount_unmatched": F.col("_is_negative") & ~F.col("_paired"),

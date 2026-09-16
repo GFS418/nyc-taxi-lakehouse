@@ -24,7 +24,12 @@ flowchart LR
 
 ## What the data-quality rules caught
 
-Real runs on two months. Every source row is accounted for, and the job fails if it is not.
+The full 2019-2023 backfill, 60 months processed in 145 minutes with no failures. Every source row
+is accounted for, and the job fails if it is not.
+
+| Scope | Source rows | Curated | Quarantined |
+|-------|------------:|--------:|------------:|
+| 2019-2023 | 218,118,168 | 216,051,983 | 2,066,185 (0.95%) |
 
 | Month | Source rows | Curated | Quarantined | Largest reason |
 |-------|------------:|--------:|------------:|----------------|
@@ -52,8 +57,8 @@ All of it, with evidence, is in [docs/design.md](docs/design.md).
 | Phase | Scope | State |
 |-------|-------|-------|
 | 0 | One month end to end | Done. 2024-06 verified on GCP: lake, Spark, BigQuery, dbt |
-| 1 | Multi-year partitioned ingest | Next: backfill 2019-2023 |
-| 2 | Spark cleaning and DQ rules | Hard rules done; soft flags and speed rule pending |
+| 1 | Multi-year partitioned ingest | Done. 60 months, 218M rows, 58 GiB in BigQuery |
+| 2 | Spark cleaning and DQ rules | 12 hard rules done; soft flags and a speed rule pending |
 | 3 | dbt star schema, marts, tests, docs | Staging model and daily mart done |
 | 4 | Airflow, incremental and idempotent | Designed |
 | 5 | CI with dbt tests; cost tuning | Designed |
