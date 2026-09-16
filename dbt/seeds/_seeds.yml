@@ -1,0 +1,30 @@
+version: 2
+
+seeds:
+  - name: taxi_zones
+    description: >
+      TLC taxi zone lookup, fetched from the TLC site. 265 zones. IDs 264 and 265 mean unknown
+      and outside NYC, and both appear in real trips.
+    columns:
+      - name: location_id
+        data_tests: [not_null, unique]
+  - name: vendors
+    description: >
+      TPEP providers, transcribed from the TLC data dictionary dated 2025-03-18. Codes 4 and 5
+      occur 267,672 times in 2019 data but are absent from that dictionary, so they are marked
+      rather than invented.
+    columns:
+      - name: vendor_id
+        data_tests: [not_null, unique]
+  - name: rate_codes
+    description: Rate codes from the TLC data dictionary. 99 means null or unknown.
+    columns:
+      - name: ratecode_id
+        data_tests: [not_null, unique]
+  - name: payment_types
+    description: >
+      Payment codes from the TLC data dictionary. Code 0, Flex Fare, marks the records submitted
+      without meter attributes; those rows also carry no rate code or store-and-forward flag.
+    columns:
+      - name: payment_type
+        data_tests: [not_null, unique]

@@ -49,6 +49,9 @@ reasoning are in [docs/data_quality_rules.md](docs/data_quality_rules.md).
 - **Time zones.** Source timestamps are NYC wall-clock with no zone, and every layer preserves that.
 - **Cost.** Month partitions, physical storage billing, dropping a 16.7 GiB redundant column, and
   per-query byte caps in dbt.
+- **A star schema that can fail.** Dimensions come from seeds transcribed from the TLC dictionary,
+  never from `select distinct` over the facts, so relationship tests catch a code the data invents.
+  The fact is incremental by month, so a routine build scans one month, not 219 million rows.
 
 All of it, with evidence, is in [docs/design.md](docs/design.md).
 
@@ -59,7 +62,7 @@ All of it, with evidence, is in [docs/design.md](docs/design.md).
 | 0 | One month end to end | Done. 2024-06 verified on GCP: lake, Spark, BigQuery, dbt |
 | 1 | Multi-year partitioned ingest | Done. 60 months, 218M rows, 58 GiB in BigQuery |
 | 2 | Spark cleaning and DQ rules | 12 hard rules done; soft flags and a speed rule pending |
-| 3 | dbt star schema, marts, tests, docs | Staging model and daily mart done |
+| 3 | dbt star schema, marts, tests, docs | Done. 5 dimensions, incremental fact, 4 marts, 56 tests |
 | 4 | Airflow, incremental and idempotent | Designed |
 | 5 | CI with dbt tests; cost tuning | Designed |
 | 6 | Dashboard and write-up | Not started |
@@ -107,12 +110,18 @@ terraform -chdir=infra apply
 GCP_PROJECT_ID=YOUR_PROJECT_ID scripts/run_slice.sh 2024-06
 ```
 
+Browse the models, tests, and lineage graph:
+
+```bash
+cd dbt && uv run dbt docs generate --profiles-dir . && uv run dbt docs serve --profiles-dir .
+```
+
 ## Layout
 
 ```
 src/lakehouse/    ingest, schema contract, quality rules, Spark transform, BigQuery load
 schemas/bigquery/ warehouse table contracts, shared by Terraform, the loader, and tests
-dbt/              staging models, marts, tests
+dbt/              seeds, staging, star schema (core), reporting marts, tests
 infra/            Terraform: bucket, datasets, tables, service account, budget alert
 scripts/          source-schema survey, profiling, one-month slice runner
 docs/             design decisions and data-quality rules

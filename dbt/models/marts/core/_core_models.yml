@@ -1,0 +1,92 @@
+version: 2
+
+models:
+  - name: fct_trips
+    description: >
+      One row per completed trip, at the grain of the source record. Built incrementally by month:
+      a run replaces whole monthly partitions instead of rewriting the history.
+    columns:
+      - name: trip_id
+        description: MD5 of every canonical source column.
+        data_tests: [not_null, unique]
+      - name: pickup_partition_ts
+        description: Partition column. Filter on this, not on an expression over it, to prune.
+        data_tests: [not_null]
+      - name: pickup_date
+        description: NYC local date of pickup.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_day
+      - name: vendor_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_vendor')
+                field: vendor_id
+      - name: ratecode_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_ratecode')
+                field: ratecode_id
+      - name: payment_type
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_payment_type')
+                field: payment_type
+      - name: pu_location_id
+        description: Pickup zone, one of the two roles dim_zone plays.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_zone')
+                field: location_id
+      - name: do_location_id
+        description: Dropoff zone, the other role dim_zone plays.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_zone')
+                field: location_id
+      - name: trip_duration_seconds
+        description: Dropoff minus pickup on wall-clock values; off by an hour across DST changes.
+      - name: passenger_count
+        description: NULL when the meter did not record it. Never filled.
+
+  - name: dim_zone
+    description: TLC taxi zones, with airport zones flagged. Plays pickup and dropoff roles.
+    columns:
+      - name: location_id
+        data_tests: [not_null, unique]
+      - name: is_airport
+        description: True for Newark, JFK, and LaGuardia.
+      - name: is_unknown_zone
+        description: True for the TLC's own unknown and outside-NYC placeholders, 264 and 265.
+
+  - name: dim_vendor
+    description: TPEP providers. in_current_dictionary is false for codes seen only in older data.
+    columns:
+      - name: vendor_id
+        data_tests: [not_null, unique]
+
+  - name: dim_ratecode
+    description: Rate codes, including 99 for null or unknown.
+    columns:
+      - name: ratecode_id
+        data_tests: [not_null, unique]
+
+  - name: dim_payment_type
+    description: Payment codes, with a flag for the one type whose tips are recorded.
+    columns:
+      - name: payment_type
+        data_tests: [not_null, unique]
+
+  - name: dim_date
+    description: Generated calendar, one row per day, covering the loaded range and beyond.
+    columns:
+      - name: date_day
+        data_tests: [not_null, unique]

@@ -15,4 +15,24 @@ models:
       +materialized: view
     marts:
       +schema: marts
-      +materialized: table
+      core:
+        +materialized: table
+      reporting:
+        +materialized: table
+
+seeds:
+  nyc_taxi:
+    +schema: seeds
+    taxi_zones:
+      +column_types:
+        location_id: INT64
+    vendors:
+      +column_types:
+        vendor_id: INT64
+        in_current_dictionary: BOOLEAN
+    rate_codes:
+      +column_types:
+        ratecode_id: INT64
+    payment_types:
+      +column_types:
+        payment_type: INT64

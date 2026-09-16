@@ -19,5 +19,5 @@ select
         sum(if(payment_type = 1, tip_amount, 0)),
         sum(if(payment_type = 1, fare_amount, 0))
     ) as card_tip_rate
-from {{ ref('stg_yellow_trips') }}
+from {{ ref('fct_trips') }}
 group by pickup_date

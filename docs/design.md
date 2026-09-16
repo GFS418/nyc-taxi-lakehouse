@@ -179,8 +179,14 @@ erDiagram
   dictionary (March 2025). Vendor codes 4 and 5 appear in 2019 data but not in the current
   dictionary, so `in_current_dictionary` records that rather than inventing names.
 - **`dim_date`** is generated, one row per calendar day in scope.
-- Planned marts: daily metrics (built in Phase 0), hourly demand, card-only tip analysis,
-  zone-to-zone flows, and airport trips.
+- **`fct_trips`** is incremental by month, partitioned on the pickup timestamp and clustered by
+  pickup and dropoff zone. A run rebuilds only the months present in the new data and swaps those
+  partitions in whole, so a routine build scans one month instead of 219 million rows.
+- Marts built on the fact: daily metrics, hourly demand with average speed, monthly zone-to-zone
+  flows (also incremental by month), and monthly airport traffic. An airport-to-airport trip counts
+  once, as a pickup, so it is never double counted.
+- Relationship tests tie every fact key to its dimension, which is how a code the seeds do not
+  know becomes a build failure instead of a silent NULL in a report.
 
 ## 9. Warehouse layout and cost
 
@@ -206,6 +212,10 @@ length), about 286 bytes per curated row:
 
 The loaded backfill measures 58.2 GiB for 219.5 million rows, 285 bytes per row, within 1% of
 this estimate.
+
+The modeled layer adds `fct_trips` at 63.1 GiB logical, since it carries derived columns the curated
+table does not. That is the price of materializing the fact instead of leaving it a view, and it is
+what makes every mart rebuild cheap. Under physical billing it is the compressed size that bills.
 
 A per-row `source_file` URI was dropped from the warehouse: it would have added 16.7 GiB to repeat
 what `source_month` already encodes. It stays in the DQ report.
@@ -288,6 +298,16 @@ Verified on GCP on 2026-09-16, full 2019-2023 backfill:
   daily mart accounts for every staged trip exactly once. The mart covers 1,856 days.
 - The backfill runner is resumable: it skips any month whose report already agrees with its
   warehouse partitions, so an interrupted run costs nothing to restart.
+
+Verified on GCP on 2026-09-16, star schema over the full history:
+
+- `dbt build` runs 4 seeds, 11 models, and 56 tests: 71 of 71 passing.
+- `fct_trips` holds 219,486,746 rows, matching staging exactly, in 61 monthly partitions.
+- Relationship tests confirm every vendor, rate code, payment type, zone, and date in the fact
+  exists in its dimension, including the undocumented vendor codes 4 and 5.
+- Marts return plausible results: JFK pickups average $83.31 in June 2024 against $129.64 for
+  Newark dropoffs, and weekday demand peaks at 6pm.
+- `dbt docs generate` writes the catalog and lineage graph.
 
 Two integration bugs this caught, both fixed:
 
