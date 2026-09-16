@@ -29,3 +29,9 @@ variable "monthly_budget_usd" {
   type        = number
   default     = 10
 }
+
+variable "github_repository" {
+  description = "owner/repo allowed to authenticate as the CI service account. Anything else is refused."
+  type        = string
+  default     = "GFS418/nyc-taxi-lakehouse"
+}

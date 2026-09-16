@@ -9,6 +9,15 @@
 
 with source as (
     select * from {{ source('curated', 'yellow_trips') }}
+
+    {#-
+      CI builds a single month. Filtering here scopes every model and test downstream, so a pull
+      request scans about a gibibyte instead of six years, and it prunes partitions on the source
+      table's own partition column. Unset in dev and prod.
+    -#}
+    {% if var('min_month', none) %}
+        where pickup_datetime >= timestamp(date '{{ var("min_month") }}-01')
+    {% endif %}
 )
 
 select

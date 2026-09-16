@@ -49,6 +49,8 @@ reasoning are in [docs/data_quality_rules.md](docs/data_quality_rules.md).
 - **Time zones.** Source timestamps are NYC wall-clock with no zone, and every layer preserves that.
 - **Cost.** Month partitions, physical storage billing, dropping a 16.7 GiB redundant column, and
   per-query byte caps in dbt.
+- **CI that can actually fail the build.** Every pull request runs the tests and a real dbt build
+  against BigQuery, authenticated without any stored key, in a dataset it creates and drops.
 - **A star schema that can fail.** Dimensions come from seeds transcribed from the TLC dictionary,
   never from `select distinct` over the facts, so relationship tests catch a code the data invents.
   The fact is incremental by month, so a routine build scans one month, not 219 million rows.
@@ -64,7 +66,7 @@ All of it, with evidence, is in [docs/design.md](docs/design.md).
 | 2 | Spark cleaning and DQ rules | 12 hard rules done; soft flags and a speed rule pending |
 | 3 | dbt star schema, marts, tests, docs | Done. 5 dimensions, incremental fact, 4 marts, 56 tests |
 | 4 | Airflow, incremental and idempotent | Done. 6 months run through the DAG; re-runs replace |
-| 5 | CI with dbt tests; cost tuning | Designed |
+| 5 | CI with dbt tests; cost tuning | Done. Keyless auth, one-month build, 2.74 GiB per run |
 | 6 | Dashboard and write-up | Not started |
 
 ## Quickstart
@@ -125,6 +127,7 @@ dbt/              seeds, staging, star schema (core), reporting marts, tests
 infra/            Terraform: bucket, datasets, tables, service account, budget alert
 orchestration/    Airflow image, compose file, and the monthly DAG
 scripts/          source-schema survey, profiling, one-month slice runner
+.github/          CI workflow: lint, tests, and a real dbt build per pull request
 docs/             design decisions and data-quality rules
 tests/            unit tests, including real-era Parquet fixtures
 ```

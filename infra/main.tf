@@ -143,3 +143,54 @@ resource "google_billing_budget" "monthly" {
 
   depends_on = [google_project_service.apis]
 }
+
+# ---------------------------------------------------------------- CI identity
+# GitHub Actions authenticates by proving which repository is running, and Google issues a
+# short-lived token. No key is ever created, so there is no long-lived credential to leak.
+resource "google_iam_workload_identity_pool" "github" {
+  workload_identity_pool_id = "github"
+  display_name              = "GitHub Actions"
+  depends_on                = [google_project_service.apis]
+}
+
+resource "google_iam_workload_identity_pool_provider" "github" {
+  workload_identity_pool_id          = google_iam_workload_identity_pool.github.workload_identity_pool_id
+  workload_identity_pool_provider_id = "github"
+  display_name                       = "GitHub Actions OIDC"
+
+  attribute_mapping = {
+    "google.subject"       = "assertion.sub"
+    "attribute.repository" = "assertion.repository"
+  }
+
+  # Without this condition any GitHub repository could exchange a token for this pool.
+  attribute_condition = "assertion.repository == '${var.github_repository}'"
+
+  oidc {
+    issuer_uri = "https://token.actions.githubusercontent.com"
+  }
+}
+
+# A separate identity from the pipeline account: CI creates and drops its own dataset per pull
+# request, which needs dataset deletion, and the pipeline account should not have that.
+resource "google_service_account" "ci" {
+  account_id   = "lakehouse-ci"
+  display_name = "NYC taxi lakehouse CI (GitHub Actions)"
+  depends_on   = [google_project_service.apis]
+}
+
+resource "google_project_iam_member" "ci_bq" {
+  for_each = toset([
+    "roles/bigquery.jobUser",   # run query jobs
+    "roles/bigquery.dataOwner", # create and drop the per-pull-request dataset
+  ])
+  project = var.project_id
+  role    = each.value
+  member  = "serviceAccount:${google_service_account.ci.email}"
+}
+
+resource "google_service_account_iam_member" "ci_workload_identity" {
+  service_account_id = google_service_account.ci.name
+  role               = "roles/iam.workloadIdentityUser"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.repository/${var.github_repository}"
+}

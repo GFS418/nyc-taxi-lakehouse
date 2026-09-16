@@ -17,10 +17,13 @@ nyc_taxi:
       maximum_bytes_billed: 80000000000
     ci:
       type: bigquery
-      method: service-account
-      keyfile: "{{ env_var('DBT_KEYFILE', '') }}"
+      # Workload Identity Federation: GitHub proves which repository is running and Google issues
+      # a short-lived token, so there is no key file anywhere. oauth here means "use ADC", which
+      # the auth action populates.
+      method: oauth
       project: "{{ env_var('GCP_PROJECT_ID') }}"
-      dataset: analytics_ci
+      # One throwaway dataset per run, created and dropped by the workflow.
+      dataset: "{{ env_var('DBT_DATASET', 'analytics_ci') }}"
       location: us-central1
       threads: 4
       job_execution_timeout_seconds: 600

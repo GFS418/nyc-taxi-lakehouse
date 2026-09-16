@@ -245,6 +245,17 @@ string is random, so `trip_id` barely compresses. The timestamps compress poorly
 shuffles scramble time order. Two Phase 5 candidates would shrink this: sort each month's output by
 pickup time before writing, and store `trip_id` as 16 raw bytes instead of 32 hex characters.
 
+**A measured caution.** Development used 1.171 TiB of queries in September 2026, just past the free
+allowance, almost all of it from repeated `dbt build --full-refresh` runs over the whole history.
+Incremental runs are the cheap path: a monthly DAG run and a CI build cost a gibibyte or two each.
+
+**Storage billing outside Terraform.** Terraform sets physical billing on the `curated` dataset, but
+dbt creates its own datasets, and those default to logical billing. They were switched by hand:
+
+```bash
+bq update --storage_billing_model=PHYSICAL PROJECT:analytics_dev_marts
+```
+
 **Queries.** On-demand queries cost $6.25 per TiB after 1 TiB free each month. Guardrails:
 
 - dbt profiles set `maximum_bytes_billed` (20 GB dev, 5 GB CI), so a runaway query fails instead of billing.
@@ -287,6 +298,28 @@ pipeline service account still has no key, since a real deployment would use Wor
 
 A manifest records each source file's ETag and Last-Modified. If TLC republishes a month, that
 value changes, and the month can be reprocessed safely because every stage is idempotent.
+
+## 10a. Continuous integration
+
+Every pull request and every push to main runs `.github/workflows/ci.yml`:
+
+1. **Lint and unit tests.** Ruff plus the pytest suite, including the Spark tests. No cloud access,
+   so a broken commit fails here before spending any warehouse quota.
+2. **dbt build on one month.** Seeds, models and all 56 data tests against BigQuery. A failing
+   model or a failing data-quality test fails the job, which is what blocks the merge.
+
+Three decisions shape it:
+
+- **No service-account key exists.** GitHub proves which repository is running through OIDC, and
+  Workload Identity Federation exchanges that for a short-lived Google token. The provider carries
+  an attribute condition, so only this repository can make the exchange. A key in repository
+  secrets would be a long-lived credential that leaks with the repository.
+- **Each run gets its own dataset**, created before the build and dropped afterwards even when the
+  build fails. Tables also carry a one-day expiry, so an interrupted run cannot leave anything
+  behind. A macro flattens dbt's per-folder datasets into that one dataset for the CI target only.
+- **CI models one month, not six years.** The `min_month` variable filters the staging view, which
+  scopes every model and test downstream. A run costs 2.74 GiB scanned, measured, against a 5 GB
+  per-query cap in the CI profile.
 
 ## 11. Verification status
 
@@ -340,6 +373,12 @@ Verified on GCP on 2026-09-16, orchestration:
   month instead of appending it. That is the idempotency claim, tested rather than asserted.
 - The fact matches the curated table exactly at 255,956,552 rows across 72 partitions.
 
+Verified on GCP on 2026-09-16, continuous integration:
+
+- A full CI rehearsal against a throwaway dataset passes 71 of 71 on one month, 3,528,207 rows, at
+  2.74 GiB billed, then drops the dataset.
+- The dev target compiles with no window filter, so the CI scoping cannot leak into production runs.
+
 Two integration bugs this caught, both fixed:
 
 - The 3.x Cloud Storage connector crashes on vectored Parquet reads against the Hadoop 3.4 that
@@ -349,6 +388,10 @@ Two integration bugs this caught, both fixed:
 - DECIMAL(10,2) could not represent an amount of -133,391,414 in 2022-12, and the strict cast
   failed the month rather than nulling it. Money widened to DECIMAL(15,2), and the new
   `amount_out_of_range` rule quarantines values like it.
+- Scoping CI at the fact rather than the source left the staging tests scanning all 256 million
+  rows, and the uniqueness test hit the per-query cap. The window belongs on the source view, where
+  it also prunes partitions. A first attempt put it in the wrong place entirely: a `WHERE` clause
+  cannot reference an alias defined in its own select list.
 - The incremental fact filtered on `_dbt_max_partition`, which holds the largest **value** of the
   partition column rather than the start of its partition. With a second-precision timestamp and
   month granularity, each run kept only the rows after the final trip of the newest month and
