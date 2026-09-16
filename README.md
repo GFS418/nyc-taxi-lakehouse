@@ -1,9 +1,9 @@
 # NYC Taxi Lakehouse
 
-An end-to-end lakehouse and ELT platform on NYC TLC yellow taxi trips: 218 million rows for
-2019–2023, with 2024 arriving month by month. Raw Parquet lands in Google Cloud Storage, PySpark
+An end-to-end lakehouse and ELT platform on NYC TLC yellow taxi trips: 256 million rows across
+2019 to 2024. Raw Parquet lands in Google Cloud Storage, PySpark
 enforces a schema contract and data-quality rules, BigQuery holds the warehouse, dbt models it
-into a star schema, and Airflow will run it one month at a time.
+into a star schema, and Airflow runs it one month at a time.
 
 The point is not the tool count. Every stage can be re-run without double-counting, every
 rejected row is kept with its reasons, and every cost decision is written down.
@@ -63,7 +63,7 @@ All of it, with evidence, is in [docs/design.md](docs/design.md).
 | 1 | Multi-year partitioned ingest | Done. 60 months, 218M rows, 58 GiB in BigQuery |
 | 2 | Spark cleaning and DQ rules | 12 hard rules done; soft flags and a speed rule pending |
 | 3 | dbt star schema, marts, tests, docs | Done. 5 dimensions, incremental fact, 4 marts, 56 tests |
-| 4 | Airflow, incremental and idempotent | Designed |
+| 4 | Airflow, incremental and idempotent | Done. 6 months run through the DAG; re-runs replace |
 | 5 | CI with dbt tests; cost tuning | Designed |
 | 6 | Dashboard and write-up | Not started |
 
@@ -123,6 +123,7 @@ src/lakehouse/    ingest, schema contract, quality rules, Spark transform, BigQu
 schemas/bigquery/ warehouse table contracts, shared by Terraform, the loader, and tests
 dbt/              seeds, staging, star schema (core), reporting marts, tests
 infra/            Terraform: bucket, datasets, tables, service account, budget alert
+orchestration/    Airflow image, compose file, and the monthly DAG
 scripts/          source-schema survey, profiling, one-month slice runner
 docs/             design decisions and data-quality rules
 tests/            unit tests, including real-era Parquet fixtures

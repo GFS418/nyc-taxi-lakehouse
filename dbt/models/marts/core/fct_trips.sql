@@ -45,7 +45,23 @@ select
 from {{ ref('stg_yellow_trips') }}
 
 {% if is_incremental() %}
-    -- _dbt_max_partition is the newest month already in the table. Months from there on are
-    -- rebuilt and replaced whole, which is what makes a re-run safe.
-    where pickup_partition_ts >= _dbt_max_partition
+    {#-
+      Two ways in.
+
+      With a month var, rebuild exactly that month. The DAG passes its own data interval, so
+      re-running any month, including an old one TLC republished, replaces just that partition.
+
+      Without it, rebuild from the newest month present onward. _dbt_max_partition holds the
+      largest VALUE of the partition column, not the start of its partition, so it has to be
+      truncated: comparing against the raw timestamp keeps only the rows after the final trip
+      of the month and silently drops the rest.
+    -#}
+    {% if var('month', none) %}
+        where pickup_partition_ts >= timestamp(date '{{ var("month") }}-01')
+            and pickup_partition_ts < timestamp(
+                date_add(date '{{ var("month") }}-01', interval 1 month)
+            )
+    {% else %}
+        where pickup_partition_ts >= timestamp_trunc(_dbt_max_partition, month)
+    {% endif %}
 {% endif %}

@@ -20,7 +20,12 @@ select
 from {{ ref('fct_trips') }}
 
 {% if is_incremental() %}
-    where date_trunc(pickup_date, month) >= (select max(month_start) from {{ this }})
+    {% if var('month', none) %}
+        where pickup_date >= date '{{ var("month") }}-01'
+            and pickup_date < date_add(date '{{ var("month") }}-01', interval 1 month)
+    {% else %}
+        where date_trunc(pickup_date, month) >= (select max(month_start) from {{ this }})
+    {% endif %}
 {% endif %}
 
 group by month_start, pu_location_id, do_location_id

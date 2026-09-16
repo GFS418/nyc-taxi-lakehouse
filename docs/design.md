@@ -17,7 +17,10 @@ data-quality reports on real months.
 | Slice | Months | Rows | Raw Parquet |
 |-------|--------|-----:|------------:|
 | Backfill, loaded | 2019-01 → 2023-12 | 218,118,168 | 3.35 GB |
-| Incremental demo | 2024-01 → 2024-12 | 41,169,720 | 0.69 GB |
+| 2024, loaded month by month | 2024-01 → 2024-12 | 41,169,720 | 0.69 GB |
+
+All 72 months are loaded: 255,956,552 curated rows across 72 monthly partitions, with no
+missing days in the six-year range.
 
 Yellow taxi only. Green taxi would add a second schema to harmonize without new engineering signal.
 
@@ -257,13 +260,33 @@ the US multi-region does not.
 be re-downloaded, so retained copies would only add cost. Local Spark reading from GCS pays internet
 egress on a few GB for a full backfill; running the same job on Dataproc in-region would remove it.
 
-## 10. Orchestration plan (Phase 4)
+## 10. Orchestration
 
-- One DAG run per month, keyed on the run's data interval. Catchup from 2019-01 is the backfill.
-- TLC publishes roughly two months late, and its CDN answers HTTP 403 until a file exists. The first
-  task is a sensor in reschedule mode that polls with a HEAD request, so runs proceed at the pace TLC publishes.
-- Each manifest stores the source ETag and Last-Modified. A changed value means TLC republished a
-  month, which can be reprocessed safely because every stage is idempotent.
+One DAG, `nyc_taxi_monthly`, in `orchestration/dags/`:
+
+```
+wait_for_tlc_publication -> ingest -> transform -> load -> dbt_build
+```
+
+- **The data interval names the month.** Each task reads the run's own interval, so a run can never
+  process "whatever is newest". Backfilling is ordinary catchup, and re-running a month replaces it.
+- **The sensor waits rather than assuming a lag.** TLC publishes about two months late on no fixed
+  day, and its CDN answers HTTP 403 until a file exists. The sensor polls in reschedule mode, so a
+  waiting run holds no worker slot, with a 75-day timeout.
+- **Retries are safe** because every task is idempotent: the lake key is a function of the month,
+  Spark overwrites that month's directories, and the load replaces one warehouse partition.
+- **dbt runs per month.** The fact is incremental, so a monthly build touches one partition instead
+  of rescanning 219 million rows.
+- **Scope.** The DAG starts at 2024-07, where the backfill runner stopped, and ends with 2024.
+  Removing `end_date` lets it follow TLC to the present.
+
+Airflow runs in Docker with Spark in the same image, so the DAG executes PySpark exactly as the CLI
+does. dbt lives in a separate virtualenv inside that image, because dbt and Airflow pin conflicting
+versions of shared libraries. The host's gcloud credentials are mounted read only; Terraform's
+pipeline service account still has no key, since a real deployment would use Workload Identity.
+
+A manifest records each source file's ETag and Last-Modified. If TLC republishes a month, that
+value changes, and the month can be reprocessed safely because every stage is idempotent.
 
 ## 11. Verification status
 
@@ -309,6 +332,14 @@ Verified on GCP on 2026-09-16, star schema over the full history:
   Newark dropoffs, and weekday demand peaks at 6pm.
 - `dbt docs generate` writes the catalog and lineage graph.
 
+Verified on GCP on 2026-09-16, orchestration:
+
+- Six months, 2024-07 through 2024-12, ran end to end through the DAG in Docker, roughly four
+  minutes each.
+- Re-running 2024-07, a month already loaded, left the row count unchanged: the run replaced the
+  month instead of appending it. That is the idempotency claim, tested rather than asserted.
+- The fact matches the curated table exactly at 255,956,552 rows across 72 partitions.
+
 Two integration bugs this caught, both fixed:
 
 - The 3.x Cloud Storage connector crashes on vectored Parquet reads against the Hadoop 3.4 that
@@ -318,6 +349,12 @@ Two integration bugs this caught, both fixed:
 - DECIMAL(10,2) could not represent an amount of -133,391,414 in 2022-12, and the strict cast
   failed the month rather than nulling it. Money widened to DECIMAL(15,2), and the new
   `amount_out_of_range` rule quarantines values like it.
+- The incremental fact filtered on `_dbt_max_partition`, which holds the largest **value** of the
+  partition column rather than the start of its partition. With a second-precision timestamp and
+  month granularity, each run kept only the rows after the final trip of the newest month and
+  dropped the rest, shrinking that month to a single row. The filter now truncates to the month,
+  and the DAG passes its own month so any month can be rebuilt on its own. The reconciliation test
+  between fact and staging is what caught it.
 
 Still unverified:
 
@@ -328,6 +365,8 @@ Still unverified:
 ## 12. Known limitations
 
 - Spark runs single-node (`local[*]`). The same job runs unchanged on Dataproc or EMR.
+- Airflow runs single-node in Docker on SQLite, which suits one monthly DAG. A real deployment
+  needs a proper metadata database and a distributed executor.
 - Near-duplicates that differ only in surcharges are kept (see the rules doc).
 - If the curated load succeeds and the quarantine load fails, the two tables disagree until the month is re-run.
 - Great Expectations is deliberately not used: Spark quarantine plus dbt tests already cover data quality,

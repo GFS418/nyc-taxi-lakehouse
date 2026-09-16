@@ -1,0 +1,36 @@
+# Local Airflow for the lakehouse: one container running `airflow standalone`.
+#
+#   cp .env.example .env        # GCP_PROJECT_ID and LAKE_ROOT
+#   docker compose up --build
+#   open http://localhost:8080  # password: docker compose exec airflow cat /opt/airflow/simple_auth_manager_passwords.json.generated
+#
+# Credentials are mounted read only from the host's gcloud config. No service-account key is
+# created or copied: in a real deployment the pipeline service account would use Workload Identity.
+services:
+  airflow:
+    build: .
+    env_file: .env
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
+      # The pipeline package is mounted, not installed, so edits apply without a rebuild.
+      PYTHONPATH: /opt/project/src
+      SPARK_DRIVER_MEMORY: 4g
+      SPARK_SHUFFLE_PARTITIONS: "8"
+      LAKEHOUSE_JAR_CACHE: /opt/spark-jars
+      CLOUDSDK_CONFIG: /home/airflow/.config/gcloud
+      # Spark's Java client does not read CLOUDSDK_CONFIG; point it at the mounted file.
+      GOOGLE_APPLICATION_CREDENTIALS: /home/airflow/.config/gcloud/application_default_credentials.json
+      # dbt would otherwise try to write a usage-stats file into the read-only repo mount.
+      DBT_SEND_ANONYMOUS_USAGE_STATS: "False"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ..:/opt/project:ro
+      - ${HOME}/.config/gcloud:/home/airflow/.config/gcloud:ro
+      - airflow-home:/opt/airflow
+    ports:
+      - "8080:8080"
+    command: standalone
+
+volumes:
+  airflow-home:
