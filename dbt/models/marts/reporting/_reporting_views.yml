@@ -1,0 +1,43 @@
+version: 2
+
+models:
+  - name: rpt_daily_overview
+    description: >
+      Daily metrics joined to the calendar. The dashboard's primary source: one row per day, with
+      year, month and weekday already resolved so charts need no joins.
+    columns:
+      - name: pickup_date
+        data_tests: [not_null, unique]
+      - name: avg_fare_per_trip
+        description: Total charged divided by trips, including tips, tolls and surcharges.
+
+  - name: rpt_hourly_profile
+    description: Trips and speed by hour and weekday, shaped for a demand heatmap.
+    columns:
+      - name: trips
+        data_tests: [not_null]
+
+  - name: rpt_zone_flows_named
+    description: >
+      Monthly zone-to-zone flows with borough and zone names resolved. has_unknown_zone marks pairs
+      involving the TLC's unknown or outside-NYC placeholders, which belong in a chart's filter.
+    columns:
+      - name: trips
+        data_tests: [not_null]
+
+  - name: rpt_borough_flows
+    description: >
+      Borough-to-borough flows by month, excluding the TLC placeholder zones. A few thousand rows,
+      so a public dashboard can cache an extract rather than query BigQuery per visitor.
+    columns:
+      - name: trips
+        data_tests: [not_null]
+
+  - name: rpt_airport_monthly
+    description: Monthly airport traffic by airport and direction.
+    columns:
+      - name: airport_code
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['EWR', 'JFK', 'LGA']

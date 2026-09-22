@@ -40,6 +40,38 @@ Most negative fares are not junk. They exactly cancel an earlier charge for the 
 halves are quarantined and revenue nets to what was collected. The full rule set, thresholds, and
 reasoning are in [docs/data_quality_rules.md](docs/data_quality_rules.md).
 
+## What six years of trips show
+
+| Year | Trips | Revenue | Avg fare | Tips as share of fares |
+|------|------:|--------:|---------:|-----------------------:|
+| 2019 | 84,256,744 | $1.62B | $19.20 | 16.4% |
+| 2020 | 24,437,748 | $0.45B | $18.39 | 16.6% |
+| 2021 | 30,600,762 | $0.61B | $19.80 | 17.4% |
+| 2022 | 39,163,369 | $0.86B | $21.92 | 18.6% |
+| 2023 | 37,593,360 | $1.09B | $29.01 | 18.0% |
+| 2024 | 39,904,569 | $1.15B | $28.74 | 17.1% |
+
+- **April 2020 was the floor.** 235,479 trips, against 7,452,418 in April 2019. A 97% collapse.
+- **Ridership never came back, but revenue mostly did.** 2024 carried 47% of 2019's trips and took
+  71% of its revenue, because the average fare rose by half.
+- **Airports carry more of the business.** Airport pickups grew from 5.8% of all trips in 2019 to
+  7.8% in 2024, recovering faster than street hails.
+- **The business is Manhattan.** Manhattan-to-Manhattan trips are 84% of the six-year total.
+
+The tip column counts tips against fares across all trips. The TLC records tips automatically for
+card payments and never records cash tips, so treat it as a floor rather than a tipping rate.
+
+## Dashboard
+
+Five reporting views feed it, each denormalized so charts need no joins: daily overview, hourly
+profile, borough flows, zone flows, and airport traffic.
+
+<!-- Add the Looker Studio link here once the report is shared. -->
+
+A public dashboard runs a query for every visitor, on the owner's bill. Four of the five views are
+small on purpose (2,192 daily rows, 44,539 hourly, 2,355 borough pairs, 366 airport rows), so they
+can be served from cached extracts at no cost. Only the 1.6 million-row zone detail queries live.
+
 ## Decisions worth reading
 
 - **Idempotency by construction.** Lake keys are pure functions of the month. BigQuery loads swap
@@ -67,7 +99,7 @@ All of it, with evidence, is in [docs/design.md](docs/design.md).
 | 3 | dbt star schema, marts, tests, docs | Done. 5 dimensions, incremental fact, 4 marts, 56 tests |
 | 4 | Airflow, incremental and idempotent | Done. 6 months run through the DAG; re-runs replace |
 | 5 | CI with dbt tests; cost tuning | Done. Keyless auth, one-month build, 2.74 GiB per run |
-| 6 | Dashboard and write-up | Not started |
+| 6 | Dashboard and write-up | Reporting views built; Looker Studio report pending |
 
 ## Quickstart
 

@@ -321,6 +321,17 @@ Three decisions shape it:
   scopes every model and test downstream. A run costs 2.74 GiB scanned, measured, against a 5 GB
   per-query cap in the CI profile.
 
+## 10b. Serving
+
+Five views in the marts layer feed the dashboard: `rpt_daily_overview`, `rpt_hourly_profile`,
+`rpt_borough_flows`, `rpt_zone_flows_named`, and `rpt_airport_monthly`. They are views, not tables:
+no storage, never stale, and each one denormalized so a BI tool joins nothing.
+
+The cost decision here is about visitors, not about us. A public Looker Studio report queries
+BigQuery once per viewer, billed to the report owner. Four of the five views are deliberately tiny,
+so they can be served as cached extracts and cost nothing no matter who opens the link. Only the
+zone-level detail, 1.6 million rows, needs a live connection.
+
 ## 11. Verification status
 
 Verified locally:
@@ -378,6 +389,11 @@ Verified on GCP on 2026-09-16, continuous integration:
 - A full CI rehearsal against a throwaway dataset passes 71 of 71 on one month, 3,528,207 rows, at
   2.74 GiB billed, then drops the dataset.
 - The dev target compiles with no window filter, so the CI scoping cannot leak into production runs.
+
+Verified on GCP on 2026-09-16, serving layer:
+
+- Five reporting views build and their tests pass. `rpt_borough_flows` holds 2,355 rows,
+  `rpt_daily_overview` 2,192, both well inside extract limits.
 
 Two integration bugs this caught, both fixed:
 
