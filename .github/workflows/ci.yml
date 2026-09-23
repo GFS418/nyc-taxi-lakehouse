@@ -23,7 +23,7 @@ jobs:
         with: # PySpark needs a JVM, and the Spark tests are most of the suite
           distribution: temurin
           java-version: "17"
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.1.0 # this project publishes no floating major tag
         with:
           enable-cache: true
       - run: uv sync --frozen
@@ -50,7 +50,7 @@ jobs:
           workload_identity_provider: projects/741153668396/locations/global/workloadIdentityPools/github/providers/github
           service_account: lakehouse-ci@nyc-taxi-lakehouse-508804.iam.gserviceaccount.com
       - uses: google-github-actions/setup-gcloud@v3
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.1.0 # this project publishes no floating major tag
         with:
           enable-cache: true
       - run: uv sync --frozen
