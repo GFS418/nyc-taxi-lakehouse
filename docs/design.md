@@ -19,7 +19,7 @@ data-quality reports on real months.
 | Backfill, loaded | 2019-01 → 2023-12 | 218,118,168 | 3.35 GB |
 | 2024, loaded month by month | 2024-01 → 2024-12 | 41,169,720 | 0.69 GB |
 
-All 72 months are loaded: 255,956,552 curated rows across 72 monthly partitions, with no
+All 72 months are loaded: 255,733,484 curated rows across 72 monthly partitions, with no
 missing days in the six-year range.
 
 Yellow taxi only. Green taxi would add a second schema to harmonize without new engineering signal.
@@ -447,6 +447,16 @@ Verified on GCP on 2026-09-16, serving layer:
 
 - Five reporting views build and their tests pass. `rpt_borough_flows` holds 2,355 rows,
   `rpt_daily_overview` 2,192, both well inside extract limits.
+
+Verified on GCP on 2026-09-22, Phase 2 and the final rule set:
+
+- All 72 months reprocessed under 13 hard rules and 4 soft flags in 189 minutes, no failures:
+  259,287,888 source rows, 255,733,484 curated, 3,554,404 quarantined at 1.37%.
+- A full dbt rebuild passes 97 of 97. The fact matches the curated table row for row, its soft
+  flags match Spark's counts exactly, and no row carries a NULL flag.
+- 3,790,775 trips, 1.5%, carry at least one soft flag. They stay in the data.
+- The serving view returns December 2024 from batch, 3,527,080 trips, and the replayed live
+  events from the stream, 2,404 accepted, with nothing served twice.
 
 Two integration bugs this caught, both fixed:
 
