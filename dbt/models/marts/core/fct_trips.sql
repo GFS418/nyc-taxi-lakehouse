@@ -4,6 +4,7 @@
         incremental_strategy='insert_overwrite',
         partition_by={'field': 'pickup_partition_ts', 'data_type': 'timestamp', 'granularity': 'month'},
         cluster_by=['pu_location_id', 'do_location_id'],
+        on_schema_change='fail',
     )
 }}
 
@@ -41,7 +42,13 @@ select
     cbd_congestion_fee,
     total_amount,
     store_and_fwd_flag,
-    source_month
+    source_month,
+    is_zero_distance,
+    is_zero_duration,
+    is_long_duration,
+    is_near_duplicate,
+    coalesce(is_zero_distance or is_zero_duration or is_long_duration or is_near_duplicate, false)
+        as has_quality_flag
 from {{ ref('stg_yellow_trips') }}
 
 {#-

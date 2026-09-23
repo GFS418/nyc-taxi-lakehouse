@@ -1,0 +1,12 @@
+version: 2
+
+sources:
+  - name: stream
+    description: >
+      Trip events written by the Pub/Sub BigQuery subscription. Delivery is at least once, so the
+      same event can arrive more than once. stg_trip_events keeps the first delivery of each.
+    database: "{{ env_var('GCP_PROJECT_ID') }}"
+    schema: stream
+    tables:
+      - name: trip_events
+        description: Raw deliveries, partitioned by publish day, expiring after 90 days.

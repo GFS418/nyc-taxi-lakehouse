@@ -49,6 +49,12 @@ def test_month_reconciles_and_reports(spark, tmp_path):
         "reversed_by_negative_row": 1,
     }
     assert report["passenger_count_null_rows"] == 1
+    assert set(report["soft_flag_counts"]) == {
+        "is_zero_distance",
+        "is_zero_duration",
+        "is_long_duration",
+        "is_near_duplicate",
+    }
     curated = pq.read_table(tmp_path / "curated/yellow/year=2019/month=01")
     assert curated.column("passenger_count").null_count == 1
     assert json.loads(open(dq_report_uri(root, MONTH)).read()) == report
@@ -102,3 +108,16 @@ def test_written_parquet_uses_types_bigquery_loads_cleanly(spark, tmp_path):
     assert logical("processed_at")["isAdjustedToUTC"] is True  # a real instant
     assert logical("fare_amount")["Type"] == "Decimal"
     assert cols["source_month"].physical_type == "INT32"
+
+
+def test_written_outputs_match_the_warehouse_contracts(spark, tmp_path):
+    """Curated carries soft flags, quarantine carries reasons. Both must match BigQuery."""
+    root = str(tmp_path)
+    seed_raw(root, table_2019_era(rows()))
+    run_month(spark, MONTH, root)
+    contracts = Path(__file__).resolve().parents[1] / "schemas" / "bigquery"
+    pairs = [("curated", "yellow_trips.json"), ("quarantine", "yellow_trips_quarantine.json")]
+    for folder, contract in pairs:
+        written = pq.read_table(Path(tmp_path, folder, "yellow/year=2019/month=01")).schema.names
+        expected = [f["name"] for f in json.loads((contracts / contract).read_text())]
+        assert written == expected, folder

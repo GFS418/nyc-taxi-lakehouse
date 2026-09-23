@@ -1,9 +1,14 @@
 """Hard data-quality rules, applied by Spark before anything reaches the warehouse.
 
 A hard rule marks a row as unusable. Failing rows are quarantined with every rule they
-failed, in precedence order; nothing is dropped silently. Suspicious-but-possible rows
-(zero distance, zero duration) are kept. Unknown code values (a new vendor or payment
-type) are contract drift for a human to review, so dbt tests catch them, not Spark.
+failed, in precedence order; nothing is dropped silently.
+
+A soft flag marks a row as suspicious but possible: zero distance, zero duration, a meter left
+running for hours, a near-duplicate. Flagged rows stay in the curated data with a boolean per
+flag, so an analyst can exclude them deliberately instead of never having seen them.
+
+Unknown code values (a new vendor or payment type) are contract drift for a human to review, so
+dbt tests catch them, not Spark.
 """
 
 from __future__ import annotations
@@ -16,10 +21,14 @@ from pyspark.sql import Column, DataFrame, Window
 from pyspark.sql import functions as F
 
 from lakehouse.config import Month
-from lakehouse.schema import MONEY_COLUMNS, QUARANTINE_COLUMNS
+from lakehouse.schema import CLASSIFIED_COLUMNS, MONEY_COLUMNS
 
 MAX_DISTANCE_MILES = 500
 MAX_ABS_AMOUNT = 10_000
+# The 99.9th percentile of implied speed is about 50 mph across four profiled months, and the
+# rows above 100 are not fast trips: the median one covers 2.7 miles in 13 seconds.
+MAX_SPEED_MPH = 100
+LONG_DURATION = "INTERVAL '3' HOUR"
 LOCATION_ID_RANGE = (1, 265)
 REQUIRED_NON_NULL = (
     "vendor_id",
@@ -39,6 +48,9 @@ REVERSAL_KEY = (
     "pu_location_id",
     "do_location_id",
 )
+# Same trip, same fare, but different surcharges or tips: likely a resubmission, and there is no
+# submission timestamp to say which version is right. Flagged, never removed.
+NEAR_DUPLICATE_KEY = (*REVERSAL_KEY, "fare_amount")
 
 
 @dataclass(frozen=True)
@@ -59,6 +71,10 @@ RULES = (
     Rule("negative_distance", "Negative trip distance."),
     Rule("distance_over_500_miles", f"Trip distance above {MAX_DISTANCE_MILES} miles."),
     Rule(
+        "implied_speed_over_100_mph",
+        f"Distance over duration above {MAX_SPEED_MPH} mph, or any distance in zero time.",
+    ),
+    Rule(
         "amount_out_of_range",
         f"A monetary column beyond ${MAX_ABS_AMOUNT:,} in absolute value; no real trip costs that.",
     ),
@@ -74,6 +90,16 @@ RULES = (
     Rule("duplicate_row", "Exact duplicate of a row that passed every rule; one copy is kept."),
 )
 RULE_CODES = tuple(rule.code for rule in RULES)
+
+SOFT_FLAGS = (
+    Rule("is_zero_distance", "Trip distance is exactly zero: a cancelled trip or a flag drop."),
+    Rule("is_zero_duration", "Dropoff equals pickup, with zero distance."),
+    Rule("is_long_duration", "Meter engaged more than 3 hours, typically left running."),
+    Rule(
+        "is_near_duplicate",
+        "Shares vendor, timestamps, zones and fare with another kept row, but differs elsewhere.",
+    ),
+)
 
 
 def _any(conditions: list[Column]) -> Column:
@@ -112,6 +138,9 @@ def _rule_conditions(month: Month) -> dict[str, Column]:
     start = F.lit(f"{month.first_day} 00:00:00").cast("timestamp_ntz")
     end = F.lit(f"{month.next().first_day} 00:00:00").cast("timestamp_ntz")
     pickup, dropoff = F.col("pickup_datetime"), F.col("dropoff_datetime")
+    # The session time zone is pinned to UTC, so casting wall-clock values to TIMESTAMP is exact.
+    seconds = F.unix_seconds(dropoff.cast("timestamp")) - F.unix_seconds(pickup.cast("timestamp"))
+    distance = F.col("trip_distance")
     lo, hi = LOCATION_ID_RANGE
     return {
         "missing_required_field": _any([F.col(c).isNull() for c in REQUIRED_NON_NULL]),
@@ -122,6 +151,10 @@ def _rule_conditions(month: Month) -> dict[str, Column]:
         "duration_over_24h": (dropoff - pickup) > F.expr("INTERVAL '24' HOUR"),
         "negative_distance": F.col("trip_distance") < 0,
         "distance_over_500_miles": F.col("trip_distance") > MAX_DISTANCE_MILES,
+        "implied_speed_over_100_mph": (
+            (seconds > 0) & (distance / (seconds / 3600) > MAX_SPEED_MPH)
+        )
+        | ((seconds == 0) & (distance > 0)),
         "amount_out_of_range": _any([F.abs(F.col(c)) > MAX_ABS_AMOUNT for c in MONEY_COLUMNS]),
         "reversal_negative_row": F.col("_is_negative") & F.col("_paired"),
         "reversed_by_negative_row": ~F.col("_is_negative") & F.col("_paired"),
@@ -154,4 +187,17 @@ def classify(df: DataFrame, month: Month) -> DataFrame:
     )
     # try_element_at: under ANSI mode (Spark 4 default) element_at on an empty array raises.
     df = df.withColumn("reject_reason", F.try_element_at("reject_reasons", F.lit(1)))
-    return df.select(*QUARANTINE_COLUMNS)
+    return _with_soft_flags(df).select(*CLASSIFIED_COLUMNS)
+
+
+def _with_soft_flags(df: DataFrame) -> DataFrame:
+    kept = F.col("reject_reason").isNull()
+    group_size = F.count(F.lit(1)).over(Window.partitionBy(*NEAR_DUPLICATE_KEY, "_kept"))
+    pickup, dropoff = F.col("pickup_datetime"), F.col("dropoff_datetime")
+    return (
+        df.withColumn("_kept", kept)
+        .withColumn("is_zero_distance", F.col("trip_distance") == 0)
+        .withColumn("is_zero_duration", dropoff == pickup)
+        .withColumn("is_long_duration", (dropoff - pickup) > F.expr(LONG_DURATION))
+        .withColumn("is_near_duplicate", F.col("_kept") & (group_size > 1))
+    )

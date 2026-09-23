@@ -56,6 +56,19 @@ models:
         description: Dropoff minus pickup on wall-clock values; off by an hour across DST changes.
       - name: passenger_count
         description: NULL when the meter did not record it. Never filled.
+      - name: is_zero_distance
+        description: Soft flag from Spark. Zero trip distance, a cancelled trip or flag drop.
+      - name: is_zero_duration
+        description: Soft flag from Spark. Dropoff equals pickup, with zero distance.
+      - name: is_long_duration
+        description: Soft flag from Spark. Meter engaged over 3 hours, typically left running.
+      - name: is_near_duplicate
+        description: Soft flag from Spark. Shares vendor, timestamps, zones and fare with another kept row.
+      - name: has_quality_flag
+        description: >
+          True when any soft flag is set. Filter on NOT has_quality_flag to analyze only
+          unremarkable trips; the flagged ones are kept so that choice stays explicit.
+        data_tests: [not_null]
 
   - name: dim_zone
     description: TLC taxi zones, with airport zones flagged. Plays pickup and dropoff roles.

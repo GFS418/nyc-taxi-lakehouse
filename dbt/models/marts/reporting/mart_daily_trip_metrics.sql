@@ -7,6 +7,7 @@
 select
     pickup_date,
     count(*) as trips,
+    countif(has_quality_flag) as flagged_trips,
     countif(passenger_count is not null) as trips_with_recorded_passengers,
     sum(passenger_count) as recorded_passengers,
     safe_divide(sum(passenger_count), countif(passenger_count is not null))

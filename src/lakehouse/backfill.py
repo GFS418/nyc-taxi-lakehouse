@@ -117,6 +117,7 @@ def run_backfill(
                     "quarantined_rows": report["quarantined_rows"],
                     "quarantine_rate": report["quarantine_rate"],
                     "reject_reason_counts": report["reject_reason_counts"],
+                    "soft_flag_counts": report.get("soft_flag_counts", {}),
                     "seconds": round(time.monotonic() - clock, 1),
                 }
             )
@@ -132,8 +133,10 @@ def run_backfill(
 
     done = [r for r in results if r["status"] == "ok"]
     reasons: Counter[str] = Counter()
+    flags: Counter[str] = Counter()
     for result in done:
         reasons.update(result["reject_reason_counts"])
+        flags.update(result["soft_flag_counts"])
     source_rows = sum(r["source_rows"] for r in done)
     quarantined = sum(r["quarantined_rows"] for r in done)
     return {
@@ -149,6 +152,7 @@ def run_backfill(
         "quarantined_rows": quarantined,
         "quarantine_rate": round(quarantined / source_rows, 6) if source_rows else 0.0,
         "reject_reason_counts": dict(sorted(reasons.items())),
+        "soft_flag_counts": dict(sorted(flags.items())),
         "months": results,
     }
 

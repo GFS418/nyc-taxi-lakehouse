@@ -46,5 +46,9 @@ select
     cbd_congestion_fee,
     total_amount,
     source_month,
-    processed_at
+    processed_at,
+    is_zero_distance,
+    is_zero_duration,
+    is_long_duration,
+    is_near_duplicate
 from source

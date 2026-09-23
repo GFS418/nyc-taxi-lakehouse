@@ -332,6 +332,59 @@ BigQuery once per viewer, billed to the report owner. Four of the five views are
 so they can be served as cached extracts and cost nothing no matter who opens the link. Only the
 zone-level detail, 1.6 million rows, needs a live connection.
 
+## 10c. Streaming
+
+A second path carries trips as they happen, beside the monthly batch:
+
+```
+replay producer -> Pub/Sub topic, Avro schema -> BigQuery subscription -> stream.trip_events
+  -> stg_trip_events: dedupe, same rules -> fct_trips_live -> fct_trips_unified
+```
+
+- **No always-on compute.** A BigQuery subscription writes messages straight into a table, so
+  nothing runs and nothing bills unless events flow. A Dataflow job would do the same work with
+  a worker running around the clock, at tens of dollars a month for a portfolio project.
+- **The contract is enforced at publish time.** The topic carries an Avro schema, and a message
+  that does not match is refused before it reaches the warehouse, so schema drift fails at the
+  edge instead of in a dashboard. One trap, verified against the live schema: Avro's JSON
+  encoding names the branch of every nullable value, so `{"long": 1}` is accepted and `1` is not.
+- **At-least-once delivery means deduplication.** Pub/Sub can deliver a message twice, and
+  producers retry. Each event carries a producer-assigned ID; staging keeps the first delivery.
+  The raw table keeps every delivery, so duplicates stay measurable rather than disappearing.
+- **The same rules, in SQL.** Staging applies the row-level subset of the Spark hard rules with
+  identical reason codes and precedence. Two rules cannot apply to a single event: the source-month
+  check needs a file, and refund pairing needs the original charge, which may have arrived earlier.
+- **Lambda serving.** `fct_trips_unified` serves history from the batch fact and the tail after
+  the batch high-water mark from the stream. The mark is a one-row table rebuilt on every dbt run,
+  so the view never rescans the fact to find it. When the monthly DAG loads a month, those trips
+  move from the stream side to the batch side on the next build, and none is served twice.
+- **Time.** Stream events store NYC wall-clock time natively as DATETIME, since Pub/Sub converts
+  well-formatted strings on write. The batch path needs its UTC-labeled workaround only because
+  Parquet loads force TIMESTAMP. The live fact derives the same labeled column so filters match.
+- **Retention.** The stream table's partitions expire after 90 days. Stream rows only matter
+  until the batch absorbs them.
+
+The producer replays real trips from the lake. Each trip is emitted at the moment its meter would
+disengage, re-stamped to end now in NYC time with its true duration, and time is compressed by a
+speedup factor. A seeded fault rate corrupts a fraction of events on purpose: negative fares,
+invalid zones, reversed timestamps, impossible speeds, duplicate resends, and schema violations.
+
+One replay of Friday 2024-06-14, 17:00 to 17:20, at 20 times speed and a 2% fault rate:
+
+| Outcome | Events | Explanation |
+|---|---:|---|
+| Published | 2,487 | 2,483 events, 4 of them resent |
+| Rejected at publish | 12 | Every injected schema violation |
+| Kept | 2,404 | |
+| Negative amount | 52 | 9 injected, 43 real refund rows |
+| Implied speed over 100 mph | 12 | 10 injected, 2 real |
+| Dropoff before pickup | 9 | All injected |
+| Invalid zone | 6 | All injected |
+| Duplicate delivery | 4 | All injected, removed by staging |
+| Dead-lettered | 0 | Nothing failed to write |
+
+Average latency from producer to Pub/Sub was 117 ms, and the replay took 63 seconds.
+
 ## 11. Verification status
 
 Verified locally:
@@ -424,6 +477,12 @@ Still unverified:
 ## 12. Known limitations
 
 - Spark runs single-node (`local[*]`). The same job runs unchanged on Dataproc or EMR.
+- The stream rejects the negative half of a refund but keeps the original charge, which may have
+  arrived earlier; batch quarantines both halves. The stream tail therefore overstates revenue
+  slightly until the monthly batch absorbs those trips.
+- Batch is loaded through 2024, the agreed scope. Real live data from 2026 would leave a gap
+  between the batch high-water mark and the stream until the DAG's end date is lifted. The replay
+  stamps events with the current time to demonstrate the mechanism.
 - Airflow runs single-node in Docker on SQLite, which suits one monthly DAG. A real deployment
   needs a proper metadata database and a distributed executor.
 - Near-duplicates that differ only in surcharges are kept (see the rules doc).

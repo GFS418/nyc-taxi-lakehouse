@@ -1,0 +1,140 @@
+[
+  {
+    "name": "event_id",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Producer UUID. Not unique here: deduplicated in stg_trip_events."
+  },
+  {
+    "name": "event_ts",
+    "type": "TIMESTAMP",
+    "mode": "NULLABLE",
+    "description": "When the producer emitted the event, true UTC."
+  },
+  {
+    "name": "vendor_id",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "pickup_datetime",
+    "type": "DATETIME",
+    "mode": "NULLABLE",
+    "description": "NYC local wall-clock time."
+  },
+  {
+    "name": "dropoff_datetime",
+    "type": "DATETIME",
+    "mode": "NULLABLE",
+    "description": "NYC local wall-clock time."
+  },
+  {
+    "name": "passenger_count",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "trip_distance",
+    "type": "FLOAT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "ratecode_id",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "store_and_fwd_flag",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "pu_location_id",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "do_location_id",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "payment_type",
+    "type": "INT64",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "fare_amount",
+    "type": "NUMERIC",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "extra",
+    "type": "NUMERIC",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "mta_tax",
+    "type": "NUMERIC",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "tip_amount",
+    "type": "NUMERIC",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "tolls_amount",
+    "type": "NUMERIC",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "improvement_surcharge",
+    "type": "NUMERIC",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "total_amount",
+    "type": "NUMERIC",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "congestion_surcharge",
+    "type": "NUMERIC",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "airport_fee",
+    "type": "NUMERIC",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "cbd_congestion_fee",
+    "type": "NUMERIC",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "subscription_name",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Written by the BigQuery subscription."
+  },
+  {
+    "name": "message_id",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Pub/Sub message ID. A redelivery gets a new one; event_id does not change."
+  },
+  {
+    "name": "publish_time",
+    "type": "TIMESTAMP",
+    "mode": "NULLABLE",
+    "description": "When Pub/Sub accepted the message. Partition column."
+  },
+  {
+    "name": "attributes",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Message attributes as JSON."
+  }
+]

@@ -136,5 +136,29 @@
     "type": "TIMESTAMP",
     "mode": "NULLABLE",
     "description": "When the Spark job that produced this row ran (true UTC)."
+  },
+  {
+    "name": "is_zero_distance",
+    "type": "BOOL",
+    "mode": "NULLABLE",
+    "description": "Soft flag: trip distance is exactly zero. Kept; exclude deliberately if needed."
+  },
+  {
+    "name": "is_zero_duration",
+    "type": "BOOL",
+    "mode": "NULLABLE",
+    "description": "Soft flag: dropoff equals pickup, with zero distance."
+  },
+  {
+    "name": "is_long_duration",
+    "type": "BOOL",
+    "mode": "NULLABLE",
+    "description": "Soft flag: meter engaged more than 3 hours, typically left running."
+  },
+  {
+    "name": "is_near_duplicate",
+    "type": "BOOL",
+    "mode": "NULLABLE",
+    "description": "Soft flag: another kept row shares vendor, timestamps, zones and fare."
   }
 ]

@@ -15,6 +15,7 @@ select
     d.day_name,
     d.is_weekend,
     m.trips,
+    m.flagged_trips,
     m.trip_distance_miles,
     m.fare_amount,
     m.tip_amount,

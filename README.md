@@ -1,9 +1,13 @@
 # NYC Taxi Lakehouse
 
+**[View the dashboard](https://claude.ai/artifact/VmEzbAN9mvGXU38v7NiKwc)**: six years of trips, from the 2020 collapse to rising fares,
+built from this pipeline's reporting marts.
+
 An end-to-end lakehouse and ELT platform on NYC TLC yellow taxi trips: 256 million rows across
 2019 to 2024. Raw Parquet lands in Google Cloud Storage, PySpark
 enforces a schema contract and data-quality rules, BigQuery holds the warehouse, dbt models it
-into a star schema, and Airflow runs it one month at a time.
+into a star schema, and Airflow runs it one month at a time. A second, streaming path carries
+trips through Pub/Sub into the same warehouse as they happen.
 
 The point is not the tool count. Every stage can be re-run without double-counting, every
 rejected row is kept with its reasons, and every cost decision is written down.
@@ -18,6 +22,9 @@ flowchart LR
     CUR -->|"load: table$YYYYMM<br/>WRITE_TRUNCATE,<br/>row counts verified"| BQ[("BigQuery<br/>curated.yellow_trips")]
     Q --> BQQ[("BigQuery<br/>quarantine")]
     BQ -->|dbt| STG["staging"] --> MART["star schema<br/>and marts"] --> BI["Looker Studio"]
+    PROD["Replay producer<br/>real trips, stamped now"] -->|"Pub/Sub, Avro schema<br/>enforced at publish"| LIVE[("BigQuery<br/>stream.trip_events")]
+    LIVE -->|"dbt: dedupe,<br/>same rules"| UNI["serving view:<br/>batch + stream tail"]
+    MART --> UNI
     AF{{"Airflow: one run per month"}} -.-> RAW
     TF{{"Terraform: bucket, datasets,<br/>tables, IAM, budget"}} -.-> BQ
 ```
@@ -30,11 +37,6 @@ is accounted for, and the job fails if it is not.
 | Scope | Source rows | Curated | Quarantined |
 |-------|------------:|--------:|------------:|
 | 2019-2023 | 218,118,168 | 216,051,983 | 2,066,185 (0.95%) |
-
-| Month | Source rows | Curated | Quarantined | Largest reason |
-|-------|------------:|--------:|------------:|----------------|
-| 2019-01 | 7,696,617 | 7,682,131 | 14,486 (0.19%) | Refund/void reversal pairs |
-| 2024-06 | 3,539,193 | 3,434,764 | 104,429 (2.95%) | Refund/void reversal pairs |
 
 Most negative fares are not junk. They exactly cancel an earlier charge for the same trip, so both
 halves are quarantined and revenue nets to what was collected. The full rule set, thresholds, and
@@ -63,14 +65,24 @@ card payments and never records cash tips, so treat it as a floor rather than a 
 
 ## Dashboard
 
-Five reporting views feed it, each denormalized so charts need no joins: daily overview, hourly
-profile, borough flows, zone flows, and airport traffic.
+**[NYC Yellow Taxi, 2019–2024](https://claude.ai/artifact/VmEzbAN9mvGXU38v7NiKwc)** presents this data: the 2020 collapse, fares, demand
+by hour, airports, and borough corridors, with data through December 2024. Its figures are a
+published snapshot of the reporting marts, so viewing it never queries the warehouse.
 
-<!-- Add the Looker Studio link here once the report is shared. -->
+Five reporting views feed the BI layer, each denormalized so charts need no joins: daily
+overview, hourly profile, borough flows, zone flows, and airport traffic.
 
-A public dashboard runs a query for every visitor, on the owner's bill. Four of the five views are
-small on purpose (2,192 daily rows, 44,539 hourly, 2,355 borough pairs, 366 airport rows), so they
-can be served from cached extracts at no cost. Only the 1.6 million-row zone detail queries live.
+A dashboard that queries BigQuery live runs a query for every visitor, on the owner's bill. Four
+of the five views are small on purpose, so a BI tool can serve them from cached extracts at no
+cost. Only the 1.6 million-row zone detail needs a live connection.
+
+| View | Rows |
+|------|-----:|
+| Daily overview | 2,192 |
+| Hourly profile | 44,539 |
+| Borough flows | 2,355 |
+| Airport traffic | 366 |
+| Zone flows | 1.6 million |
 
 ## Decisions worth reading
 
@@ -83,6 +95,10 @@ can be served from cached extracts at no cost. Only the 1.6 million-row zone det
   per-query byte caps in dbt.
 - **CI that can actually fail the build.** Every pull request runs the tests and a real dbt build
   against BigQuery, authenticated without any stored key, in a dataset it creates and drops.
+- **Streaming without a streaming cluster.** Pub/Sub writes straight into BigQuery through a
+  BigQuery subscription, with the schema enforced at publish time. Staging deduplicates the
+  at-least-once deliveries and applies the batch rules in SQL, and a serving view joins batch
+  history to the stream tail. Nothing runs, and nothing bills, unless events flow.
 - **A star schema that can fail.** Dimensions come from seeds transcribed from the TLC dictionary,
   never from `select distinct` over the facts, so relationship tests catch a code the data invents.
   The fact is incremental by month, so a routine build scans one month, not 219 million rows.
@@ -95,11 +111,12 @@ All of it, with evidence, is in [docs/design.md](docs/design.md).
 |-------|-------|-------|
 | 0 | One month end to end | Done. 2024-06 verified on GCP: lake, Spark, BigQuery, dbt |
 | 1 | Multi-year partitioned ingest | Done. 60 months, 218M rows, 58 GiB in BigQuery |
-| 2 | Spark cleaning and DQ rules | 12 hard rules done; soft flags and a speed rule pending |
+| 2 | Spark cleaning and DQ rules | 13 hard rules and 4 soft flags built; full-history reprocess running |
 | 3 | dbt star schema, marts, tests, docs | Done. 5 dimensions, incremental fact, 4 marts, 56 tests |
 | 4 | Airflow, incremental and idempotent | Done. 6 months run through the DAG; re-runs replace |
 | 5 | CI with dbt tests; cost tuning | Done. Keyless auth, one-month build, 2.74 GiB per run |
-| 6 | Dashboard and write-up | Reporting views built; Looker Studio report pending |
+| Stretch | Streaming path | Done. Pub/Sub into BigQuery, dedupe and rules in dbt, lambda view |
+| 6 | Dashboard and write-up | [Dashboard published](https://claude.ai/artifact/VmEzbAN9mvGXU38v7NiKwc); Looker Studio report in progress |
 
 ## Quickstart
 
@@ -144,6 +161,12 @@ terraform -chdir=infra apply
 GCP_PROJECT_ID=YOUR_PROJECT_ID scripts/run_slice.sh 2024-06
 ```
 
+Replay twenty minutes of a real Friday rush hour as a live feed, with 2% deliberate faults:
+
+```bash
+uv run python -m lakehouse.stream_replay --month 2024-06 --day 2024-06-14 --start 17:00 --minutes 20 --speedup 20 --fault-rate 0.02
+```
+
 Browse the models, tests, and lineage graph:
 
 ```bash
@@ -153,8 +176,10 @@ cd dbt && uv run dbt docs generate --profiles-dir . && uv run dbt docs serve --p
 ## Layout
 
 ```
-src/lakehouse/    ingest, schema contract, quality rules, Spark transform, BigQuery load
-schemas/bigquery/ warehouse table contracts, shared by Terraform, the loader, and tests
+src/lakehouse/    ingest, schema contract, quality rules, Spark transform, BigQuery load,
+                  backfill runner, stream replay producer
+schemas/          BigQuery table contracts and the Pub/Sub event schema, shared by Terraform
+                  and tests
 dbt/              seeds, staging, star schema (core), reporting marts, tests
 infra/            Terraform: bucket, datasets, tables, service account, budget alert
 orchestration/    Airflow image, compose file, and the monthly DAG

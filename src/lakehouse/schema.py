@@ -47,7 +47,7 @@ MONEY_COLUMNS = tuple(canon for canon, dtype in SOURCE_COLUMNS.values() if dtype
 NULL_TO_ZERO_FEES = ("congestion_surcharge", "airport_fee", "cbd_congestion_fee")
 RATECODE_UNKNOWN = 99  # TLC dictionary: 99 = Null/unknown
 
-TRIP_COLUMNS = (
+CORE_COLUMNS = (
     "trip_id",
     "vendor_id",
     "pickup_datetime",
@@ -63,7 +63,18 @@ TRIP_COLUMNS = (
     "source_month",
     "processed_at",
 )
-QUARANTINE_COLUMNS = (*TRIP_COLUMNS, "reject_reason", "reject_reasons")
+# Soft flags mark suspicious-but-possible trips. They ride on curated rows only: a quarantined
+# row is already unusable, so flagging it adds nothing. Appended last so adding them to the
+# warehouse table is an in-place schema change, not a rebuild.
+SOFT_FLAG_COLUMNS = (
+    "is_zero_distance",
+    "is_zero_duration",
+    "is_long_duration",
+    "is_near_duplicate",
+)
+TRIP_COLUMNS = (*CORE_COLUMNS, *SOFT_FLAG_COLUMNS)
+QUARANTINE_COLUMNS = (*CORE_COLUMNS, "reject_reason", "reject_reasons")
+CLASSIFIED_COLUMNS = (*CORE_COLUMNS, *SOFT_FLAG_COLUMNS, "reject_reason", "reject_reasons")
 
 
 class SchemaContractError(ValueError):
@@ -108,7 +119,7 @@ def canonicalize(raw: DataFrame, *, source_month: date, processed_at: datetime) 
     for fee in NULL_TO_ZERO_FEES:
         filled = filled.withColumn(fee, F.coalesce(fee, F.lit(0).cast(MONEY)))
     return filled.select(
-        *[c for c in TRIP_COLUMNS if c not in ("source_month", "processed_at")],
+        *[c for c in CORE_COLUMNS if c not in ("source_month", "processed_at")],
         F.lit(source_month).alias("source_month"),
         F.lit(processed_at).alias("processed_at"),
     )

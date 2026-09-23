@@ -16,6 +16,7 @@ locals {
     "iam.googleapis.com",
     "cloudresourcemanager.googleapis.com",
     "billingbudgets.googleapis.com",
+    "pubsub.googleapis.com",
   ]
 }
 

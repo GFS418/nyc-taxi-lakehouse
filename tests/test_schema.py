@@ -8,7 +8,7 @@ import pytest
 from pyspark.sql import types as T
 from raw_fixtures import table_2019_era, table_2023_era, trip, write
 
-from lakehouse.schema import TRIP_COLUMNS, SchemaContractError, canonicalize
+from lakehouse.schema import CORE_COLUMNS, SOFT_FLAG_COLUMNS, SchemaContractError, canonicalize
 
 CONTRACT = Path(__file__).resolve().parents[1] / "schemas" / "bigquery"
 KW = dict(
@@ -37,14 +37,18 @@ def test_both_schema_eras_produce_identical_schemas(spark, tmp_path):
     old = canonical(spark, tmp_path / "a", table_2019_era([trip()]))
     new = canonical(spark, tmp_path / "b", table_2023_era([trip()]))
     assert old.schema.simpleString() == new.schema.simpleString()
-    assert tuple(old.columns) == TRIP_COLUMNS
+    assert tuple(old.columns) == CORE_COLUMNS
 
 
 def test_canonical_schema_matches_bigquery_contract(spark, tmp_path):
     df = canonical(spark, tmp_path, table_2019_era([trip()]))
     contract = json.loads((CONTRACT / "yellow_trips.json").read_text())
     ours = [(f.name, SPARK_TO_BQ[type(f.dataType)]) for f in df.schema.fields]
-    assert ours == [(f["name"], f["type"]) for f in contract]
+    assert ours == [(f["name"], f["type"]) for f in contract[: len(ours)]]
+    # The soft flags come after the canonical columns, and are added by the quality step.
+    assert [(f["name"], f["type"]) for f in contract[len(ours) :]] == [
+        (c, "BOOL") for c in SOFT_FLAG_COLUMNS
+    ]
 
 
 def test_fills_follow_the_decisions(spark, tmp_path):

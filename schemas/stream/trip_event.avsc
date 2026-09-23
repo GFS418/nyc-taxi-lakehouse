@@ -1,0 +1,133 @@
+{
+  "type": "record",
+  "name": "TripEvent",
+  "namespace": "nyc.taxi.stream",
+  "doc": "One completed taxi trip, emitted when the meter disengages.",
+  "fields": [
+    {
+      "name": "event_id",
+      "type": "string",
+      "doc": "Producer-assigned UUID. Pub/Sub delivers at least once, so consumers deduplicate on it."
+    },
+    {
+      "name": "event_ts",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-micros"
+      },
+      "doc": "When the producer emitted the event: a true UTC instant."
+    },
+    {
+      "name": "vendor_id",
+      "type": "long"
+    },
+    {
+      "name": "pickup_datetime",
+      "type": "string",
+      "doc": "NYC local wall-clock time, YYYY-MM-DD HH:MM:SS. Lands in a DATETIME column."
+    },
+    {
+      "name": "dropoff_datetime",
+      "type": "string"
+    },
+    {
+      "name": "passenger_count",
+      "type": [
+        "null",
+        "long"
+      ],
+      "default": null
+    },
+    {
+      "name": "trip_distance",
+      "type": "double"
+    },
+    {
+      "name": "ratecode_id",
+      "type": [
+        "null",
+        "long"
+      ],
+      "default": null
+    },
+    {
+      "name": "store_and_fwd_flag",
+      "type": [
+        "null",
+        "string"
+      ],
+      "default": null
+    },
+    {
+      "name": "pu_location_id",
+      "type": "long"
+    },
+    {
+      "name": "do_location_id",
+      "type": "long"
+    },
+    {
+      "name": "payment_type",
+      "type": "long"
+    },
+    {
+      "name": "fare_amount",
+      "type": "string",
+      "doc": "Decimal string, written to NUMERIC exactly."
+    },
+    {
+      "name": "extra",
+      "type": "string",
+      "doc": "Decimal string, written to NUMERIC exactly."
+    },
+    {
+      "name": "mta_tax",
+      "type": "string",
+      "doc": "Decimal string, written to NUMERIC exactly."
+    },
+    {
+      "name": "tip_amount",
+      "type": "string",
+      "doc": "Decimal string, written to NUMERIC exactly."
+    },
+    {
+      "name": "tolls_amount",
+      "type": "string",
+      "doc": "Decimal string, written to NUMERIC exactly."
+    },
+    {
+      "name": "improvement_surcharge",
+      "type": "string",
+      "doc": "Decimal string, written to NUMERIC exactly."
+    },
+    {
+      "name": "total_amount",
+      "type": "string",
+      "doc": "Decimal string, written to NUMERIC exactly."
+    },
+    {
+      "name": "congestion_surcharge",
+      "type": [
+        "null",
+        "string"
+      ],
+      "default": null
+    },
+    {
+      "name": "airport_fee",
+      "type": [
+        "null",
+        "string"
+      ],
+      "default": null
+    },
+    {
+      "name": "cbd_congestion_fee",
+      "type": [
+        "null",
+        "string"
+      ],
+      "default": null
+    }
+  ]
+}

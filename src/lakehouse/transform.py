@@ -29,7 +29,7 @@ from lakehouse.config import (
     raw_file_uri,
 )
 from lakehouse.quality import classify
-from lakehouse.schema import QUARANTINE_COLUMNS, TRIP_COLUMNS, canonicalize
+from lakehouse.schema import QUARANTINE_COLUMNS, SOFT_FLAG_COLUMNS, TRIP_COLUMNS, canonicalize
 from lakehouse.spark import build_spark
 from lakehouse.storage import delete_if_exists, write_json
 
@@ -71,6 +71,12 @@ def run_month(
             .collect()
         }
         null_passengers = classified.filter(F.col("passenger_count").isNull()).count()
+        flag_row = (
+            classified.filter(F.col("reject_reason").isNull())
+            .agg(*[F.sum(F.col(f).cast("int")).alias(f) for f in SOFT_FLAG_COLUMNS])
+            .collect()[0]
+        )
+        soft_flags = {f: int(flag_row[f] or 0) for f in SOFT_FLAG_COLUMNS}
         curated_out, quarantine_out = (
             spark_path(curated_dir_uri(root, month)),
             spark_path(quarantine_dir_uri(root, month)),
@@ -107,6 +113,7 @@ def run_month(
         "quarantine_rate": round(quarantined_rows / source_rows, 6) if source_rows else 0.0,
         "reject_reason_counts": dict(sorted(primary.items())),
         "rule_hit_counts": dict(sorted(rule_hits.items())),
+        "soft_flag_counts": soft_flags,
         "passenger_count_null_rows": null_passengers,
         "processed_at": processed_at.isoformat(),
         "spark_version": pyspark.__version__,

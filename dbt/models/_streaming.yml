@@ -1,0 +1,60 @@
+version: 2
+
+models:
+  - name: stg_trip_events
+    description: >
+      Live trip events, deduplicated on event_id and checked against the row-level subset of the
+      Spark hard rules, with identical reason codes. reject_reason is NULL for accepted events.
+    columns:
+      - name: event_id
+        data_tests: [not_null, unique]
+      - name: reject_reason
+        data_tests:
+          - accepted_values:
+              arguments:
+                values:
+                  - missing_required_field
+                  - invalid_location_id
+                  - dropoff_before_pickup
+                  - duration_over_24h
+                  - negative_distance
+                  - distance_over_500_miles
+                  - implied_speed_over_100_mph
+                  - amount_out_of_range
+                  - negative_amount_unmatched
+
+  - name: fct_trips_live
+    description: Accepted live trips, in the same shape as fct_trips.
+    columns:
+      - name: trip_id
+        description: The producer's event_id.
+        data_tests: [not_null, unique]
+      - name: pu_location_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_zone')
+                field: location_id
+      - name: vendor_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_vendor')
+                field: vendor_id
+
+  - name: batch_high_water_mark
+    description: The latest pickup the batch fact covers. Rebuilt on every dbt run.
+    columns:
+      - name: batch_high_water
+        data_tests: [not_null]
+
+  - name: fct_trips_unified
+    description: >
+      Batch history plus the stream tail after the batch high-water mark. served_from says which
+      path each row came from. No tests here on purpose: every one would rescan the batch fact.
+
+  - name: rpt_live_last_hour
+    description: Accepted and rejected events per minute over the last hour, by publish time.
+
+  - name: rpt_stream_quality
+    description: Every delivery in the last 24 hours, by outcome, including duplicate deliveries.

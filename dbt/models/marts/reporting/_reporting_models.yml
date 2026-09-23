@@ -8,6 +8,8 @@ models:
         data_tests: [not_null, unique]
       - name: trips
         data_tests: [not_null]
+      - name: flagged_trips
+        description: Trips carrying at least one soft data-quality flag. Included in trips.
       - name: trips_with_recorded_passengers
         description: Trips whose passenger count was recorded, the correct denominator for averages.
       - name: recorded_passengers
